@@ -1,0 +1,1050 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Nature Trend Radar | رادار ترندات تصوير الطبيعة</title>
+  <style>
+    /* ==========================================================================
+       1. المتغيرات والتهيئة العامة (CSS Variables & Reset)
+       ألوان مستوحاة من أعماق الغابات والطبيعة مع تباين عالي وشاشة داكنة مريحة للعين.
+       ========================================================================== */
+    :root {
+      --bg-dark: #08130d;           /* خلفية داكنة جداً بلون الغابة الليلية */
+      --bg-card: #0f2318;           /* خلفية البطاقات بلون أخضر زمردي داكن */
+      --bg-card-hover: #162f22;     /* تأثير عند تحويم أو لمس البطاقة */
+      --bg-subtle: #142a1d;         /* خلفية فرعية للمربعات الداخلية */
+      --border-color: #1e3f2d;      /* إطارات خفيفة أنيقة */
+      --primary: #10b981;           /* لون زمردي حيوي للترندات والأزرار */
+      --primary-hover: #059669;     /* تدرج الزمردي عند الضغط */
+      --accent-gold: #f59e0b;       /* لون ذهبي يمثل شروق الشمس وأفكار المحتوى */
+      --text-main: #f0fdf4;         /* لون النص الأساسي أبيض مائل للخضرة الخفيفة */
+      --text-muted: #94a3b8;        /* نصوص ثانوية رمادية فاتحة وواضحة */
+      --text-dim: #64748b;          /* نصوص خافتة للتواريخ والتفاصيل الصغيرة */
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+      --shadow-card: 0 8px 24px rgba(0, 0, 0, 0.35);
+      --font-stack: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans Arabic', Tahoma, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      font-family: var(--font-stack);
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 16px 14px 40px;
+    }
+
+    /* حاوية التطبيق المركزية - مصممة للهاتف (Mobile-First) وتناسب الشاشات الأكبر */
+    .app-container {
+      width: 100%;
+      max-width: 520px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    /* ==========================================================================
+       2. ترويسة التطبيق (Header & Radar Banner)
+       ========================================================================== */
+    header {
+      background: linear-gradient(145deg, #10261b 0%, #0a1811 100%);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 20px 18px;
+      box-shadow: var(--shadow-card);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* تأثير ضوئي خافت في الخلفية يعبر عن نبض الرادار */
+    header::before {
+      content: "";
+      position: absolute;
+      top: -30px;
+      left: -30px;
+      width: 120px;
+      height: 120px;
+      background: radial-gradient(circle, rgba(16, 185, 129, 0.25) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .brand-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    .radar-icon-box {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      flex-shrink: 0;
+    }
+
+    .brand-titles h1 {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text-main);
+      letter-spacing: -0.3px;
+    }
+
+    .brand-titles p {
+      font-size: 13px;
+      color: var(--primary);
+      font-weight: 500;
+    }
+
+    .header-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding-top: 12px;
+      margin-top: 10px;
+      border-top: 1px solid rgba(255, 255, 255, 0.07);
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(16, 185, 129, 0.12);
+      color: var(--primary);
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-weight: 500;
+    }
+
+    .pulse-dot {
+      width: 7px;
+      height: 7px;
+      background-color: var(--primary);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--primary);
+      animation: pulseAnim 2s infinite ease-in-out;
+    }
+
+    @keyframes pulseAnim {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.85); }
+    }
+
+    .refresh-btn {
+      background: transparent;
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      border-radius: var(--radius-sm);
+      padding: 5px 10px;
+      font-size: 12px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.2s ease;
+    }
+
+    .refresh-btn:hover, .refresh-btn:active {
+      color: var(--primary);
+      border-color: var(--primary);
+      background: rgba(16, 185, 129, 0.08);
+    }
+
+    /* ==========================================================================
+       3. شريط التصفية والفلترة (Filter Tabs)
+       ========================================================================== */
+    .filter-wrapper {
+      position: sticky;
+      top: 10px;
+      z-index: 20;
+      background: rgba(8, 19, 13, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      padding: 6px 0;
+      border-radius: var(--radius-md);
+    }
+
+    .filter-scroll {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+      scrollbar-width: none; /* إخفاء شريط التمرير على فايرفوكس */
+    }
+
+    .filter-scroll::-webkit-scrollbar {
+      display: none; /* إخفاء شريط التمرير على كروم وسفاري */
+    }
+
+    .filter-btn {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      padding: 8px 16px;
+      border-radius: 30px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.25s ease;
+      min-height: 44px; /* متوافق مع معايير اللمس على الهواتف */
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .filter-btn.active {
+      background: var(--primary);
+      color: #041f12;
+      border-color: var(--primary);
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35);
+    }
+
+    .filter-count {
+      font-size: 11px;
+      padding: 1px 6px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    .filter-btn.active .filter-count {
+      background: rgba(0, 0, 0, 0.25);
+      color: #fff;
+    }
+
+    /* ==========================================================================
+       4. بطاقات الترندات (Trend Cards)
+       ========================================================================== */
+    .trends-feed {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .trend-card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 18px;
+      box-shadow: var(--shadow-card);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+
+    .trend-card:hover {
+      border-color: rgba(16, 185, 129, 0.4);
+    }
+
+    /* شريط علوي للبطاقة: الفئة والتاريخ */
+    .card-meta-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .category-badge {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    /* ألوان مخصصة لكل فئة تعطي هوية فورية للعين */
+    .cat-reels {
+      background: rgba(244, 63, 94, 0.15);
+      color: #fb7185;
+      border: 1px solid rgba(244, 63, 94, 0.3);
+    }
+    .cat-hashtags {
+      background: rgba(139, 92, 246, 0.15);
+      color: #c084fc;
+      border: 1px solid rgba(139, 92, 246, 0.3);
+    }
+    .cat-editing {
+      background: rgba(245, 158, 11, 0.15);
+      color: #fbbf24;
+      border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+    .cat-gear {
+      background: rgba(14, 165, 233, 0.15);
+      color: #38bdf8;
+      border: 1px solid rgba(14, 165, 233, 0.3);
+    }
+    .cat-default {
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--primary);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .trend-date {
+      font-size: 11px;
+      color: var(--text-dim);
+    }
+
+    /* عنوان الترند الرئيسي */
+    .trend-title {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--text-main);
+      line-height: 1.4;
+    }
+
+    /* قسم فكرة المحتوى (Content Idea) */
+    .idea-box {
+      background: var(--bg-subtle);
+      border-right: 3px solid var(--accent-gold);
+      border-radius: var(--radius-sm);
+      padding: 12px 14px;
+      font-size: 13.5px;
+      color: #e2e8f0;
+    }
+
+    .idea-box-title {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11.5px;
+      font-weight: 700;
+      color: var(--accent-gold);
+      margin-bottom: 5px;
+    }
+
+    /* قسم الهاشتاغات (Hashtags Section) */
+    .hashtags-section {
+      background: rgba(0, 0, 0, 0.2);
+      border: 1px dashed var(--border-color);
+      border-radius: var(--radius-sm);
+      padding: 10px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .hashtags-text {
+      font-size: 12.5px;
+      color: #a7f3d0;
+      word-break: break-word;
+      line-height: 1.6;
+      direction: ltr;
+      text-align: right;
+      font-family: monospace;
+    }
+
+    /* شريط الإجراءات أسفل كل بطاقة */
+    .card-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding-top: 4px;
+    }
+
+    .copy-btn {
+      flex: 1;
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      color: var(--primary);
+      padding: 10px 14px;
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 46px; /* زر لمس مريح */
+      transition: all 0.2s ease;
+    }
+
+    .copy-btn:hover, .copy-btn:active {
+      background: var(--primary);
+      color: #041f12;
+      border-color: var(--primary);
+    }
+
+    .copy-btn.copied {
+      background: var(--primary);
+      color: #041f12;
+      border-color: var(--primary);
+    }
+
+    .source-btn {
+      background: var(--bg-subtle);
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      padding: 10px 14px;
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      min-height: 46px;
+      transition: all 0.2s ease;
+    }
+
+    .source-btn:hover, .source-btn:active {
+      color: var(--text-main);
+      border-color: var(--text-muted);
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    /* ==========================================================================
+       5. حالات التحميل والخطأ والفراغ (States: Loading, Error, Empty)
+       ========================================================================== */
+    .state-container {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 40px 20px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      box-shadow: var(--shadow-card);
+    }
+
+    .spinner {
+      width: 44px;
+      height: 44px;
+      border: 3px solid rgba(16, 185, 129, 0.2);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 0.9s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .state-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .state-desc {
+      font-size: 13px;
+      color: var(--text-muted);
+      max-width: 320px;
+    }
+
+    .retry-btn {
+      background: var(--primary);
+      color: #041f12;
+      border: none;
+      padding: 10px 20px;
+      border-radius: var(--radius-sm);
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+      min-height: 44px;
+      margin-top: 6px;
+    }
+
+    /* ==========================================================================
+       6. إشعار النسخ العائم (Toast Notification)
+       ========================================================================== */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: #10b981;
+      color: #041f12;
+      padding: 12px 22px;
+      border-radius: 30px;
+      font-size: 14px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 100;
+    }
+
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+      visibility: visible;
+    }
+
+    /* تذييل الصفحة */
+    footer {
+      text-align: center;
+      font-size: 11.5px;
+      color: var(--text-dim);
+      margin-top: 10px;
+      padding: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-container">
+
+    <!-- 1. ترويسة التطبيق والبيانات الوصفية -->
+    <header>
+      <div class="brand-row">
+        <div class="radar-icon-box">📡</div>
+        <div class="brand-titles">
+          <h1>Nature Trend Radar</h1>
+          <p>رادار ترندات تصوير الطبيعة لإنستغرام</p>
+        </div>
+      </div>
+
+      <div class="header-meta">
+        <span class="status-badge" id="sourceBadge">
+          <span class="pulse-dot"></span>
+          <span id="sourceStatusText">جاري المسح...</span>
+        </span>
+        <span id="lastUpdatedText">آخر تحديث: اليوم</span>
+        <button class="refresh-btn" id="refreshBtn" title="تحديث البيانات">
+          <span>🔄</span>
+          <span>تحديث</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- 2. أزرار الفلترة حسب الفئة -->
+    <nav class="filter-wrapper" aria-label="تصنيفات الترندات">
+      <div class="filter-scroll" id="filterContainer">
+        <!-- يتم توليد أزرار الفلترة ديناميكيًا من الجافاسكريبت -->
+      </div>
+    </nav>
+
+    <!-- 3. خلاصة البطاقات وحالات التحميل -->
+    <main id="mainFeed" class="trends-feed">
+      <!-- حالة التحميل المبدئية -->
+      <div class="state-container" id="loadingState">
+        <div class="spinner"></div>
+        <div class="state-title">جاري استكشاف أحدث الترندات...</div>
+        <div class="state-desc">نقوم بجلب أحدث أفكار المحتوى والوسوم الخاصة بالمناظر الطبيعية.</div>
+      </div>
+    </main>
+
+    <!-- 4. تذييل بسيط -->
+    <footer>
+      Nature Trend Radar &bull; خفيف وبدون مكتبات خارجية &bull; صُمم للمصورين
+    </footer>
+
+  </div>
+
+  <!-- 5. نافذة التأكيد السريعة (Toast) للنسخ -->
+  <div class="toast" id="toastBox">
+    <span>✓</span>
+    <span id="toastMessage">تم نسخ الهاشتاغات بنجاح!</span>
+  </div>
+
+  <!-- ==========================================================================
+       الجافاسكريبت (JavaScript): المنطق والبيانات وجلب الـ CSV
+       ========================================================================== -->
+  <script>
+    /**
+     * =========================================================================
+     * المتغير الأساسي: رابط Google Sheet المنشور كـ CSV
+     * =========================================================================
+     * ضع رابط ملفك المنشور هنا بصيغة CSV.
+     * إذا تركته فارغاً أو تعذر الوصول إليه، سيعرض التطبيق تلقائياً بيانات تجريبية واقعية.
+     */
+    const SHEET_URL = "";
+
+    /**
+     * =========================================================================
+     * البيانات التجريبية الواقعية (5 ترندات لمصوري الطبيعة على إنستغرام)
+     * =========================================================================
+     */
+    const DEMO_TRENDS = [
+      {
+        date: "2026-09-24",
+        trend_title: "انتقال الضباب السريع مع شروق الشمس (Sunrise Fog Transition)",
+        category: "Reels",
+        hashtags: "#naturephotography #landscapephotography #goldenhour #mistyforest #reelsnature",
+        content_idea: "فيديو 5 ثوانٍ يبدأ بلقطة مظلمة لغابة كثيفة يغمرها الضباب، ثم يظهر شعاع الشمس الذهبي فجأة يخترق الأشجار بالتزامن مع ذروة الصوت (Sound Drop).",
+        source_link: "https://www.instagram.com"
+      },
+      {
+        date: "2026-09-23",
+        trend_title: "درجات ألوان الخريف الدافئة والمزاجية (Moody Earthy Tones)",
+        category: "Editing",
+        hashtags: "#moodytones #autumncolors #lightroomnature #earthyvibes #forestlovers",
+        content_idea: "مقارنة قبل وبعد (Before & After) لتحرير لقطة جبل أو غابة بألوان ترابية وبرتقالية عميقة، مع كتابة قيم HSL وأسرار تدرج الألوان في الوصف.",
+        source_link: "https://www.instagram.com"
+      },
+      {
+        date: "2026-09-22",
+        trend_title: "تصوير المياه الانسيابية بالهاتف دون فلتر ND (Long Exposure Hack)",
+        category: "Gear",
+        hashtags: "#waterfallphotography #longexposure #naturegeartips #shutterspeed #cameratricks",
+        content_idea: "كاروسيل تعليمي (4 شرائح) يوضح كيف تلتقط شلالاً أو نهراً ناعماً بالهاتف فقط عبر تقنية Live Photo في الآيفون أو وضع Pro في أندرويد بسرعة 1/2 ثانية.",
+        source_link: "https://www.instagram.com"
+      },
+      {
+        date: "2026-09-21",
+        trend_title: "حزمة وسوم الطبيعة الهادئة الأكثر صعوداً في Explore هذا الأسبوع",
+        category: "Hashtags",
+        hashtags: "#visualsofearth #earthpix #roamtheplanet #artofvisuals #wildernesstones",
+        content_idea: "منشور يعرض أفضل 3 صور التقطتها مؤخراً مع استخدام وسوم متوازنة متوسطة الشهرة لزيادة فرص الظهور في صفحة الاستكشاف (Explore Page).",
+        source_link: "https://www.instagram.com"
+      },
+      {
+        date: "2026-09-20",
+        trend_title: "لقطة الماكرو لقطرات الندى على أوراق الشجر (Dewdrop Macro Reel)",
+        category: "Reels",
+        hashtags: "#macronature #dewdrops #macrodetails #natureinmotion #greennature",
+        content_idea: "مقطع ريل مقرب جداً بحركة بطيئة (120fps) يركز على قطرة ماء تهتز على حافة ورقة شجر مبتلة بعد المطر مباشرة، مع سؤال تفاعلي في الوصف.",
+        source_link: "https://www.instagram.com"
+      }
+    ];
+
+    // حالة التطبيق الداخلية
+    let allTrends = [];
+    let currentCategory = "ALL";
+
+    // مراجع عناصر واجهة المستخدم في الـ DOM
+    const mainFeed = document.getElementById("mainFeed");
+    const filterContainer = document.getElementById("filterContainer");
+    const sourceStatusText = document.getElementById("sourceStatusText");
+    const lastUpdatedText = document.getElementById("lastUpdatedText");
+    const refreshBtn = document.getElementById("refreshBtn");
+    const toastBox = document.getElementById("toastBox");
+    const toastMessage = document.getElementById("toastMessage");
+
+    /**
+     * =========================================================================
+     * دالة تحويل الـ CSV إلى مصفوفة كائنات (بدون أي مكتبة خارجية)
+     * =========================================================================
+     * تقرأ أسطر النص المنشور، وتستخرج السطر الأول كعناوين للأعمدة (Headers)،
+     * ثم تبني كائناً لكل صف، مع مراعاة وجود فواصل داخل علامات التنصيص.
+     */
+    function parseCSV(text) {
+      if (!text || !text.trim()) return [];
+
+      // تقسيم النص إلى أسطر
+      const lines = text.trim().split(/\r?\n/).filter(line => line.trim().length > 0);
+      if (lines.length < 2) return [];
+
+      // دالة داخلية لتقسيم السطر مع دعم الفواصل المحمية بين علامات الاقتباس "..."
+      function splitCSVLine(line) {
+        const values = [];
+        let curVal = "";
+        let insideQuotes = false;
+
+        for (let i = 0; i < line.length; i++) {
+          const c = line[i];
+          if (c === '"') {
+            if (insideQuotes && line[i + 1] === '"') {
+              curVal += '"';
+              i++;
+            } else {
+              insideQuotes = !insideQuotes;
+            }
+          } else if (c === ',' && !insideQuotes) {
+            values.push(curVal.trim());
+            curVal = "";
+          } else {
+            curVal += c;
+          }
+        }
+        values.push(curVal.trim());
+        return values;
+      }
+
+      // قراءة أسماء الأعمدة وتنظيفها
+      const rawHeaders = splitCSVLine(lines[0]);
+      const headers = rawHeaders.map(h => h.toLowerCase().trim().replace(/[\s\-]+/g, '_'));
+
+      const results = [];
+
+      for (let i = 1; i < lines.length; i++) {
+        const rowValues = splitCSVLine(lines[i]);
+        if (rowValues.length === 0 || (rowValues.length === 1 && !rowValues[0])) continue;
+
+        const rowObj = {};
+        headers.forEach((header, idx) => {
+          rowObj[header] = rowValues[idx] !== undefined ? rowValues[idx] : "";
+        });
+
+        // تطبيع أسماء الأعمدة لتتوافق دائماً مع النموذج المطلوب
+        results.push({
+          date: rowObj.date || new Date().toISOString().split('T')[0],
+          trend_title: rowObj.trend_title || rowObj.title || rowObj.trend || "ترند بدون عنوان",
+          category: rowObj.category || rowObj.type || "General",
+          hashtags: rowObj.hashtags || rowObj.tags || "",
+          content_idea: rowObj.content_idea || rowObj.idea || rowObj.description || "",
+          source_link: rowObj.source_link || rowObj.link || rowObj.url || "https://www.instagram.com"
+        });
+      }
+
+      return results;
+    }
+
+    /**
+     * =========================================================================
+     * دالة جلب البيانات (Fetch Data)
+     * =========================================================================
+     * تحاول استخدام fetch لجلب ملف الـ CSV المنشور.
+     * إذا لم يوضع رابط، أو حدث خطأ أثناء الجلب، تنتقل بسلاسة لعرض البيانات التجريبية.
+     */
+    async function loadTrendsData() {
+      // إظهار حالة التحميل
+      renderLoadingState();
+      sourceStatusText.textContent = "جاري الجلب...";
+
+      // فحص هل الرابط فارغ أو ما زال بالقيمة الافتراضية
+      const isUrlEmpty = !SHEET_URL || SHEET_URL.trim() === "" || SHEET_URL.includes("ضع_الرابط_هنا");
+
+      if (isUrlEmpty) {
+        // تأخير زمني بسيط (400ms) لإعطاء انطباع طبيعي وسلس للواجهة
+        setTimeout(() => {
+          applyTrends(DEMO_TRENDS, false);
+        }, 400);
+        return;
+      }
+
+      try {
+        const response = await fetch(SHEET_URL);
+        if (!response.ok) {
+          throw new Error("HTTP error! status: " + response.status);
+        }
+        const csvText = await response.text();
+        const parsedData = parseCSV(csvText);
+
+        if (parsedData.length > 0) {
+          applyTrends(parsedData, true);
+        } else {
+          // إذا كان الملف المنشور فارغاً
+          applyTrends(DEMO_TRENDS, false);
+        }
+      } catch (err) {
+        console.warn("فشل جلب الـ CSV عبر الشبكة، تم الانتقال للبيانات التجريبية:", err);
+        // عرض البيانات التجريبية مع إشعار للمستخدم
+        applyTrends(DEMO_TRENDS, false);
+      }
+    }
+
+    /**
+     * اعتماد البيانات وعرضها في الصفحة
+     */
+    function applyTrends(trendsList, isLiveFromSheet) {
+      allTrends = trendsList;
+
+      // تحديث شارة المصدر وتاريخ التحديث
+      if (isLiveFromSheet) {
+        sourceStatusText.textContent = "مباشر: Google Sheet";
+      } else {
+        sourceStatusText.textContent = "بيانات واقعية تجريبية";
+      }
+
+      // البحث عن أحدث تاريخ بين العناصر
+      const latestDate = trendsList.reduce((max, item) => item.date > max ? item.date : max, trendsList[0]?.date || "");
+      lastUpdatedText.textContent = latestDate ? `آخر تحديث: ${latestDate}` : "آخر تحديث: اليوم";
+
+      // إعادة بناء أزرار الفلترة وعرض البطاقات
+      renderFilterButtons();
+      renderFeed();
+    }
+
+    /**
+     * =========================================================================
+     * دالة توليد أزرار الفلترة حسب الفئات المتوفرة
+     * =========================================================================
+     */
+    function renderFilterButtons() {
+      // استخراج الفئات الفريدة الموجودة في البيانات
+      const categoriesSet = new Set();
+      allTrends.forEach(t => {
+        if (t.category) categoriesSet.add(t.category.trim());
+      });
+
+      const categories = Array.from(categoriesSet);
+
+      // زر "الكل" بالإضافة لباقي الفئات
+      let html = `
+        <button class="filter-btn ${currentCategory === 'ALL' ? 'active' : ''}" data-cat="ALL">
+          <span>الكل</span>
+          <span class="filter-count">${allTrends.length}</span>
+        </button>
+      `;
+
+      categories.forEach(cat => {
+        const count = allTrends.filter(t => t.category.toLowerCase() === cat.toLowerCase()).length;
+        const isActive = currentCategory.toLowerCase() === cat.toLowerCase();
+        html += `
+          <button class="filter-btn ${isActive ? 'active' : ''}" data-cat="${escapeHtml(cat)}">
+            <span>${escapeHtml(cat)}</span>
+            <span class="filter-count">${count}</span>
+          </button>
+        `;
+      });
+
+      filterContainer.innerHTML = html;
+
+      // إضافة أحداث النقر على أزرار الفلترة
+      const filterBtns = filterContainer.querySelectorAll(".filter-btn");
+      filterBtns.forEach(btn => {
+        btn.addEventListener("click", () => {
+          currentCategory = btn.getAttribute("data-cat");
+          // تحديث الصنف النشط
+          filterBtns.forEach(b => b.classList.remove("active"));
+          btn.classList.add("active");
+          // إعادة تصفية وعرض البطاقات
+          renderFeed();
+        });
+      });
+    }
+
+    /**
+     * دالة مساعدة لتحديد صنف الـ CSS المناسب لكل فئة
+     */
+    function getCategoryClass(category) {
+      const cat = (category || "").toLowerCase();
+      if (cat.includes("reel")) return "cat-reels";
+      if (cat.includes("hash")) return "cat-hashtags";
+      if (cat.includes("edit")) return "cat-editing";
+      if (cat.includes("gear")) return "cat-gear";
+      return "cat-default";
+    }
+
+    /**
+     * دالة مساعدة لأيقونة الفئة
+     */
+    function getCategoryIcon(category) {
+      const cat = (category || "").toLowerCase();
+      if (cat.includes("reel")) return "🎬";
+      if (cat.includes("hash")) return "🏷️";
+      if (cat.includes("edit")) return "🎨";
+      if (cat.includes("gear")) return "📷";
+      return "🌿";
+    }
+
+    /**
+     * =========================================================================
+     * دالة بناء وعرض بطاقات الترندات في الواجهة
+     * =========================================================================
+     */
+    function renderFeed() {
+      // تصفية العناصر بحسب الفئة المحددة حالياً
+      const filtered = currentCategory === "ALL"
+        ? allTrends
+        : allTrends.filter(t => t.category.toLowerCase() === currentCategory.toLowerCase());
+
+      if (filtered.length === 0) {
+        mainFeed.innerHTML = `
+          <div class="state-container">
+            <div style="font-size: 38px;">🔍</div>
+            <div class="state-title">لا توجد ترندات في هذه الفئة</div>
+            <div class="state-desc">اختر فئة أخرى أو انقر على "الكل" لمشاهدة جميع الأفكار.</div>
+          </div>
+        `;
+        return;
+      }
+
+      // بناء كود الـ HTML لكل بطاقة
+      mainFeed.innerHTML = filtered.map((trend, index) => {
+        const catClass = getCategoryClass(trend.category);
+        const catIcon = getCategoryIcon(trend.category);
+        const safeHashtags = escapeHtml(trend.hashtags);
+        const safeIdea = escapeHtml(trend.content_idea);
+        const safeTitle = escapeHtml(trend.trend_title);
+        const safeDate = escapeHtml(trend.date);
+        const sourceUrl = trend.source_link && trend.source_link.startsWith("http")
+          ? trend.source_link
+          : "https://www.instagram.com";
+
+        return `
+          <article class="trend-card" data-index="${index}">
+            <div class="card-meta-top">
+              <span class="category-badge ${catClass}">
+                <span>${catIcon}</span>
+                <span>${escapeHtml(trend.category)}</span>
+              </span>
+              <time class="trend-date" datetime="${safeDate}">${safeDate}</time>
+            </div>
+
+            <h2 class="trend-title">${safeTitle}</h2>
+
+            ${safeIdea ? `
+              <div class="idea-box">
+                <div class="idea-box-title">
+                  <span>💡</span>
+                  <span>فكرة المحتوى المقترحة:</span>
+                </div>
+                <div>${safeIdea}</div>
+              </div>
+            ` : ""}
+
+            ${safeHashtags ? `
+              <div class="hashtags-section">
+                <div class="hashtags-text">${safeHashtags}</div>
+              </div>
+            ` : ""}
+
+            <div class="card-actions">
+              ${safeHashtags ? `
+                <button class="copy-btn" onclick="copyHashtags(this, '${escapeForAttribute(trend.hashtags)}')">
+                  <span>📋</span>
+                  <span>نسخ الهاشتاغات</span>
+                </button>
+              ` : ""}
+
+              <a href="${sourceUrl}" target="_blank" rel="noopener noreferrer" class="source-btn" title="فتح مصدر الترند">
+                <span>عرض المصدر</span>
+                <span>↗</span>
+              </a>
+            </div>
+          </article>
+        `;
+      }).join("");
+    }
+
+    /**
+     * =========================================================================
+     * دالة نسخ الهاشتاغات إلى الحافظة (Copy Hashtags)
+     * =========================================================================
+     * تستخدم الـ Clipboard API الحديث وتتراجع لـ execCommand في المتصفحات القديمة،
+     * مع إعطاء تغذية بصرية فورية في الزر وظهور رسالة Toast أسفل الشاشة.
+     */
+    function copyHashtags(buttonElement, tagsText) {
+      if (!tagsText) return;
+
+      const performFeedback = () => {
+        const originalText = buttonElement.innerHTML;
+        buttonElement.classList.add("copied");
+        buttonElement.innerHTML = `<span>✓</span><span>تم النسخ!</span>`;
+
+        showToast("تم نسخ الهاشتاغات إلى الحافظة بنجاح!");
+
+        setTimeout(() => {
+          buttonElement.classList.remove("copied");
+          buttonElement.innerHTML = originalText;
+        }, 2200);
+      };
+
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(tagsText)
+          .then(performFeedback)
+          .catch(() => fallbackCopy(tagsText, performFeedback));
+      } else {
+        fallbackCopy(tagsText, performFeedback);
+      }
+    }
+
+    /**
+     * حل بديل للنسخ في المتصفحات القديمة أو WebView المقيد
+     */
+    function fallbackCopy(text, callback) {
+      const textarea = document.createElement("textarea");
+      textarea.value = text;
+      textarea.style.position = "fixed";
+      textarea.style.opacity = "0";
+      document.body.appendChild(textarea);
+      textarea.focus();
+      textarea.select();
+      try {
+        document.execCommand("copy");
+        callback();
+      } catch (err) {
+        alert("تعذر النسخ التلقائي، يمكنك نسخ الهاشتاغات يدوياً.");
+      }
+      document.body.removeChild(textarea);
+    }
+
+    /**
+     * =========================================================================
+     * دالة إظهار رسالة التنبيه العائمة (Toast)
+     * =========================================================================
+     */
+    let toastTimeout;
+    function showToast(message) {
+      toastMessage.textContent = message;
+      toastBox.classList.add("show");
+
+      clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => {
+        toastBox.classList.remove("show");
+      }, 2500);
+    }
+
+    /**
+     * حالة التحميل البصري
+     */
+    function renderLoadingState() {
+      mainFeed.innerHTML = `
+        <div class="state-container">
+          <div class="spinner"></div>
+          <div class="state-title">جاري استكشاف أحدث الترندات...</div>
+          <div class="state-desc">نقرأ البيانات ونحلل الهاشتاغات المناسبة للطبيعة.</div>
+        </div>
+      `;
+    }
+
+    /**
+     * دوال تنظيف النصوص للحماية من ثغرات XSS
+     */
+    function escapeHtml(str) {
+      if (!str) return "";
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function escapeForAttribute(str) {
+      if (!str) return "";
+      return String(str)
+        .replace(/\\/g, "\\\\")
+        .replace(/'/g, "\\'")
+        .replace(/"/g, "&quot;")
+        .replace(/\n/g, " ");
+    }
+
+    // زر التحديث اليدوي
+    refreshBtn.addEventListener("click", () => {
+      loadTrendsData();
+    });
+
+    // بدء تشغيل التطبيق عند تحميل الصفحة
+    window.addEventListener("DOMContentLoaded", () => {
+      loadTrendsData();
+    });
+  </script>
+</body>
+</html>
