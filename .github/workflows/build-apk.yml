@@ -1,0 +1,39 @@
+name: Build APK
+
+# يعمل يدويًا (زر Run workflow) وعند كل تحديث على الفرع الرئيسي
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      # 1) تحميل كود المستودع
+      - uses: actions/checkout@v4
+
+      # 2) تثبيت Java 17 (يحتاجها بناء Android)
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      # 3) تجهيز Gradle (أداة البناء)
+      - uses: gradle/actions/setup-gradle@v4
+
+      # 4) بناء ملف APK للتجربة
+      - name: Build debug APK
+        run: |
+          if [ -f ./gradlew ]; then
+            chmod +x ./gradlew
+            ./gradlew assembleDebug
+          else
+            gradle assembleDebug
+          fi
+
+      # 5) رفع الـ APK لتحمّله من صفحة التشغيل
+      - uses: actions/upload-artifact@v4
+        with:
+          name: trendframe-debug-apk
+          path: app/build/outputs/apk/debug/*.apk
