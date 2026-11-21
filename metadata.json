@@ -1,6 +1,6 @@
 {
-  "name": "Nature Trend Radar",
-  "description": "Weekly nature & landscape photography trend radar for Instagram creators.",
+  "name": "MY UNIVERSE",
+  "description": "Interactive space universe simulation for Android built with pure HTML, CSS, and JavaScript.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

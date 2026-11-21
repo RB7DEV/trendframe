@@ -22,6 +22,6 @@ dependencyResolutionManagement {
   }
 }
 
-rootProject.name = "Nature Trend Radar"
+rootProject.name = "MY UNIVERSE"
 
 include(":app")

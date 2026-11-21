@@ -1,31 +1,30 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Nature Trend Radar | رادار ترندات تصوير الطبيعة</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#030610" />
+  <title>MY UNIVERSE</title>
   <style>
-    /* ==========================================================================
-       1. المتغيرات والتهيئة العامة (CSS Variables & Reset)
-       ألوان مستوحاة من أعماق الغابات والطبيعة مع تباين عالي وشاشة داكنة مريحة للعين.
-       ========================================================================== */
     :root {
-      --bg-dark: #08130d;           /* خلفية داكنة جداً بلون الغابة الليلية */
-      --bg-card: #0f2318;           /* خلفية البطاقات بلون أخضر زمردي داكن */
-      --bg-card-hover: #162f22;     /* تأثير عند تحويم أو لمس البطاقة */
-      --bg-subtle: #142a1d;         /* خلفية فرعية للمربعات الداخلية */
-      --border-color: #1e3f2d;      /* إطارات خفيفة أنيقة */
-      --primary: #10b981;           /* لون زمردي حيوي للترندات والأزرار */
-      --primary-hover: #059669;     /* تدرج الزمردي عند الضغط */
-      --accent-gold: #f59e0b;       /* لون ذهبي يمثل شروق الشمس وأفكار المحتوى */
-      --text-main: #f0fdf4;         /* لون النص الأساسي أبيض مائل للخضرة الخفيفة */
-      --text-muted: #94a3b8;        /* نصوص ثانوية رمادية فاتحة وواضحة */
-      --text-dim: #64748b;          /* نصوص خافتة للتواريخ والتفاصيل الصغيرة */
-      --radius-sm: 8px;
-      --radius-md: 14px;
-      --radius-lg: 20px;
-      --shadow-card: 0 8px 24px rgba(0, 0, 0, 0.35);
-      --font-stack: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans Arabic', Tahoma, sans-serif;
+      --bg-void: #030610;
+      --bg-nebula: #070d20;
+      --glass: rgba(10, 16, 34, 0.78);
+      --glass-strong: rgba(12, 19, 40, 0.92);
+      --glass-border: rgba(138, 180, 255, 0.18);
+      --glass-border-bright: rgba(120, 200, 255, 0.42);
+      --text-primary: #f1f5ff;
+      --text-secondary: #9fb0d6;
+      --text-muted: #687aa3;
+      --accent-cyan: #38bdf8;
+      --accent-gold: #fbbf24;
+      --accent-violet: #a78bfa;
+      --accent-rose: #fb7185;
+      --accent-emerald: #34d399;
+      --radius-lg: 18px;
+      --radius-md: 13px;
+      --radius-pill: 999px;
+      --font: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans Arabic", sans-serif;
     }
 
     * {
@@ -33,944 +32,2373 @@
       margin: 0;
       padding: 0;
       -webkit-tap-highlight-color: transparent;
+      user-select: none;
+      -webkit-user-select: none;
     }
 
-    body {
-      background-color: var(--bg-dark);
-      color: var(--text-main);
-      font-family: var(--font-stack);
-      line-height: 1.6;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 16px 14px 40px;
-    }
-
-    /* حاوية التطبيق المركزية - مصممة للهاتف (Mobile-First) وتناسب الشاشات الأكبر */
-    .app-container {
+    html, body {
       width: 100%;
-      max-width: 520px;
+      height: 100%;
+      overflow: hidden;
+      background: var(--bg-void);
+      color: var(--text-primary);
+      font-family: var(--font);
+      overscroll-behavior: none;
+    }
+
+    #app {
+      position: relative;
+      width: 100%;
+      height: 100dvh;
+      overflow: hidden;
+      background: radial-gradient(circle at 50% 45%, #0a122a 0%, #050917 55%, #02040b 100%);
+    }
+
+    #spaceCanvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      touch-action: none;
+      cursor: grab;
+    }
+
+    #spaceCanvas.dragging {
+      cursor: grabbing;
+    }
+
+    #spaceCanvas.mode-create {
+      cursor: crosshair;
+    }
+
+    /* HUD Layers */
+    .hud-top {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      padding: max(10px, env(safe-area-inset-top)) 10px 0;
       display: flex;
       flex-direction: column;
-      gap: 18px;
-    }
-
-    /* ==========================================================================
-       2. ترويسة التطبيق (Header & Radar Banner)
-       ========================================================================== */
-    header {
-      background: linear-gradient(145deg, #10261b 0%, #0a1811 100%);
-      border: 1px solid var(--border-color);
-      border-radius: var(--radius-lg);
-      padding: 20px 18px;
-      box-shadow: var(--shadow-card);
-      position: relative;
-      overflow: hidden;
-    }
-
-    /* تأثير ضوئي خافت في الخلفية يعبر عن نبض الرادار */
-    header::before {
-      content: "";
-      position: absolute;
-      top: -30px;
-      left: -30px;
-      width: 120px;
-      height: 120px;
-      background: radial-gradient(circle, rgba(16, 185, 129, 0.25) 0%, transparent 70%);
+      gap: 8px;
       pointer-events: none;
+      z-index: 20;
     }
 
-    .brand-row {
+    .hud-row {
       display: flex;
       align-items: center;
-      gap: 12px;
-      margin-bottom: 8px;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
     }
 
-    .radar-icon-box {
-      width: 44px;
-      height: 44px;
-      border-radius: 12px;
-      background: rgba(16, 185, 129, 0.15);
-      border: 1px solid rgba(16, 185, 129, 0.35);
+    .glass-pill {
+      pointer-events: auto;
+      background: var(--glass);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-lg);
+      box-shadow: 0 8px 28px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    }
+
+    .brand-badge {
       display: flex;
       align-items: center;
-      justify-content: center;
-      font-size: 22px;
+      gap: 9px;
+      padding: 7px 12px;
+    }
+
+    .brand-orb {
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, #fff7d6, #fbbf24 55%, #d97706);
+      box-shadow: 0 0 12px rgba(251, 191, 36, 0.85);
+      animation: pulseOrb 2.8s ease-in-out infinite;
       flex-shrink: 0;
     }
 
-    .brand-titles h1 {
-      font-size: 20px;
-      font-weight: 700;
-      color: var(--text-main);
-      letter-spacing: -0.3px;
+    @keyframes pulseOrb {
+      0%, 100% { transform: scale(1); opacity: 0.9; }
+      50% { transform: scale(1.22); opacity: 1; }
     }
 
-    .brand-titles p {
+    .brand-text {
+      display: flex;
+      flex-direction: column;
+      line-height: 1.1;
+    }
+
+    .brand-title {
       font-size: 13px;
-      color: var(--primary);
-      font-weight: 500;
+      font-weight: 800;
+      letter-spacing: 1.1px;
+      background: linear-gradient(90deg, #ffffff, #93c5fd 60%, #fde68a);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
 
-    .header-meta {
+    .brand-sub {
+      font-size: 10px;
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
+
+    .top-actions {
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 8px;
-      padding-top: 12px;
-      margin-top: 10px;
-      border-top: 1px solid rgba(255, 255, 255, 0.07);
-      font-size: 12px;
-      color: var(--text-muted);
-    }
-
-    .status-badge {
-      display: inline-flex;
-      align-items: center;
       gap: 6px;
-      background: rgba(16, 185, 129, 0.12);
-      color: var(--primary);
-      padding: 4px 10px;
-      border-radius: 20px;
-      font-weight: 500;
+      pointer-events: auto;
     }
 
-    .pulse-dot {
-      width: 7px;
-      height: 7px;
-      background-color: var(--primary);
-      border-radius: 50%;
-      box-shadow: 0 0 8px var(--primary);
-      animation: pulseAnim 2s infinite ease-in-out;
-    }
-
-    @keyframes pulseAnim {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.4; transform: scale(0.85); }
-    }
-
-    .refresh-btn {
-      background: transparent;
-      border: 1px solid var(--border-color);
-      color: var(--text-muted);
-      border-radius: var(--radius-sm);
-      padding: 5px 10px;
-      font-size: 12px;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      transition: all 0.2s ease;
-    }
-
-    .refresh-btn:hover, .refresh-btn:active {
-      color: var(--primary);
-      border-color: var(--primary);
-      background: rgba(16, 185, 129, 0.08);
-    }
-
-    /* ==========================================================================
-       3. شريط التصفية والفلترة (Filter Tabs)
-       ========================================================================== */
-    .filter-wrapper {
-      position: sticky;
-      top: 10px;
-      z-index: 20;
-      background: rgba(8, 19, 13, 0.85);
+    .icon-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      border: 1px solid var(--glass-border);
+      background: var(--glass);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
-      padding: 6px 0;
-      border-radius: var(--radius-md);
-    }
-
-    .filter-scroll {
-      display: flex;
-      gap: 8px;
-      overflow-x: auto;
-      padding-bottom: 4px;
-      scrollbar-width: none;
-    }
-
-    .filter-scroll::-webkit-scrollbar {
-      display: none;
-    }
-
-    .filter-btn {
-      background: var(--bg-card);
-      border: 1px solid var(--border-color);
-      color: var(--text-muted);
-      padding: 8px 16px;
-      border-radius: 30px;
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-      white-space: nowrap;
-      transition: all 0.25s ease;
-      min-height: 44px;
+      color: var(--text-primary);
       display: inline-flex;
       align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: transform 0.14s ease, border-color 0.2s ease, background 0.2s ease;
+    }
+
+    .icon-btn:active {
+      transform: scale(0.93);
+    }
+
+    .icon-btn.active {
+      border-color: var(--accent-cyan);
+      background: rgba(56, 189, 248, 0.18);
+      color: var(--accent-cyan);
+    }
+
+    /* Telemetry Dashboard Strip */
+    .stats-strip {
+      display: flex;
+      align-items: center;
       gap: 6px;
+      padding: 6px 10px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      max-width: 100%;
     }
+    .stats-strip::-webkit-scrollbar { display: none; }
 
-    .filter-btn.active {
-      background: var(--primary);
-      color: #041f12;
-      border-color: var(--primary);
-      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35);
-    }
-
-    .filter-count {
-      font-size: 11px;
-      padding: 1px 6px;
+    .stat-chip {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 8px;
       border-radius: 10px;
-      background: rgba(255, 255, 255, 0.15);
+      background: rgba(255, 255, 255, 0.04);
+      font-size: 11.5px;
+      white-space: nowrap;
     }
 
-    .filter-btn.active .filter-count {
-      background: rgba(0, 0, 0, 0.25);
-      color: #fff;
+    .stat-label {
+      color: var(--text-secondary);
     }
 
-    /* ==========================================================================
-       4. بطاقات الترندات (Trend Cards)
-       ========================================================================== */
-    .trends-feed {
+    .stat-val {
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      color: var(--text-primary);
+    }
+
+    .stat-val.gold { color: var(--accent-gold); }
+    .stat-val.cyan { color: var(--accent-cyan); }
+    .stat-val.paused { color: var(--accent-rose); }
+
+    .stat-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+    }
+
+    /* Side Zoom Controls */
+    .zoom-rail {
+      position: absolute;
+      left: 10px;
+      top: 50%;
+      transform: translateY(-50%);
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 6px;
+      z-index: 18;
+      pointer-events: auto;
     }
 
-    .trend-card {
-      background-color: var(--bg-card);
-      border: 1px solid var(--border-color);
+    .zoom-rail .icon-btn {
+      width: 42px;
+      height: 42px;
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    /* Mode Hint Banner */
+    .mode-hint {
+      align-self: center;
+      padding: 5px 12px;
+      font-size: 11px;
+      color: var(--text-secondary);
+      border-radius: var(--radius-pill);
+      pointer-events: none;
+      opacity: 0.92;
+      text-align: center;
+    }
+
+    /* Inspector Floating Card */
+    .inspector-card {
+      position: absolute;
+      left: 50%;
+      bottom: 132px;
+      transform: translateX(-50%) translateY(16px);
+      width: min(calc(100% - 20px), 460px);
+      background: var(--glass-strong);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--glass-border-bright);
       border-radius: var(--radius-lg);
-      padding: 18px;
-      box-shadow: var(--shadow-card);
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-      transition: transform 0.2s ease, border-color 0.2s ease;
+      padding: 12px 14px;
+      box-shadow: 0 14px 40px rgba(0, 0, 0, 0.65);
+      z-index: 25;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease, transform 0.2s ease;
     }
 
-    .trend-card:hover {
-      border-color: rgba(16, 185, 129, 0.4);
+    .inspector-card.visible {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+      pointer-events: auto;
     }
 
-    .card-meta-top {
+    .inspector-head {
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 8px;
+      margin-bottom: 10px;
     }
 
-    .category-badge {
-      font-size: 11px;
+    .inspector-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      min-width: 0;
+    }
+
+    .inspector-swatch {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      border: 2px solid rgba(255, 255, 255, 0.4);
+    }
+
+    .inspector-name {
+      font-size: 14px;
       font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      padding: 4px 10px;
-      border-radius: 20px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .inspector-meta {
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+
+    .inspector-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .mini-btn {
+      min-height: 36px;
+      padding: 6px 10px;
+      border-radius: 10px;
+      border: 1px solid var(--glass-border);
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text-primary);
+      font-size: 11.5px;
+      font-weight: 600;
+      cursor: pointer;
       display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: transform 0.12s ease, background 0.18s ease, border-color 0.18s ease;
+    }
+
+    .mini-btn:active { transform: scale(0.95); }
+    .mini-btn.active {
+      background: rgba(56, 189, 248, 0.22);
+      border-color: var(--accent-cyan);
+      color: var(--accent-cyan);
+    }
+    .mini-btn.danger {
+      background: rgba(251, 113, 133, 0.15);
+      border-color: rgba(251, 113, 133, 0.4);
+      color: #fda4af;
+    }
+
+    .color-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-top: 9px;
+      padding-top: 9px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .swatches {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .swatch-dot {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      border: 2px solid transparent;
+      cursor: pointer;
+      transition: transform 0.14s ease;
+    }
+    .swatch-dot.selected {
+      border-color: #ffffff;
+      transform: scale(1.16);
+    }
+
+    .size-stepper {
+      display: flex;
       align-items: center;
       gap: 5px;
     }
 
-    .cat-reels {
-      background: rgba(244, 63, 94, 0.15);
-      color: #fb7185;
-      border: 1px solid rgba(244, 63, 94, 0.3);
-    }
-    .cat-hashtags {
-      background: rgba(139, 92, 246, 0.15);
-      color: #c084fc;
-      border: 1px solid rgba(139, 92, 246, 0.3);
-    }
-    .cat-editing {
-      background: rgba(245, 158, 11, 0.15);
-      color: #fbbf24;
-      border: 1px solid rgba(245, 158, 11, 0.3);
-    }
-    .cat-gear {
-      background: rgba(14, 165, 233, 0.15);
-      color: #38bdf8;
-      border: 1px solid rgba(14, 165, 233, 0.3);
-    }
-    .cat-default {
-      background: rgba(16, 185, 129, 0.15);
-      color: var(--primary);
-      border: 1px solid rgba(16, 185, 129, 0.3);
-    }
-
-    .trend-date {
-      font-size: 11px;
-      color: var(--text-dim);
-    }
-
-    .trend-title {
-      font-size: 17px;
-      font-weight: 700;
-      color: var(--text-main);
-      line-height: 1.4;
-    }
-
-    .idea-box {
-      background: var(--bg-subtle);
-      border-right: 3px solid var(--accent-gold);
-      border-radius: var(--radius-sm);
-      padding: 12px 14px;
-      font-size: 13.5px;
-      color: #e2e8f0;
-    }
-
-    .idea-box-title {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 11.5px;
-      font-weight: 700;
-      color: var(--accent-gold);
-      margin-bottom: 5px;
-    }
-
-    .hashtags-section {
-      background: rgba(0, 0, 0, 0.2);
-      border: 1px dashed var(--border-color);
-      border-radius: var(--radius-sm);
-      padding: 10px 12px;
+    /* Bottom Dock */
+    .hud-bottom {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 0 10px max(10px, env(safe-area-inset-bottom));
       display: flex;
       flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      pointer-events: none;
+      z-index: 20;
+    }
+
+    .time-bar {
+      width: min(100%, 540px);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 6px 8px;
+    }
+
+    .play-btn {
+      min-height: 42px;
+      padding: 0 14px;
+      border-radius: 12px;
+      border: 1px solid rgba(56, 189, 248, 0.45);
+      background: linear-gradient(135deg, rgba(56, 189, 248, 0.25), rgba(99, 102, 241, 0.25));
+      color: #ffffff;
+      font-size: 12.5px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: transform 0.12s ease;
+    }
+
+    .play-btn.paused {
+      border-color: rgba(251, 191, 36, 0.55);
+      background: linear-gradient(135deg, rgba(251, 191, 36, 0.25), rgba(245, 158, 11, 0.18));
+      color: #fde68a;
+    }
+
+    .play-btn:active { transform: scale(0.95); }
+
+    .speed-pills {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .speed-pills::-webkit-scrollbar { display: none; }
+
+    .speed-chip {
+      min-width: 42px;
+      min-height: 36px;
+      padding: 0 8px;
+      border-radius: 10px;
+      border: 1px solid transparent;
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text-secondary);
+      font-size: 11.5px;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      cursor: pointer;
+      transition: all 0.16s ease;
+    }
+
+    .speed-chip.active {
+      background: rgba(56, 189, 248, 0.22);
+      border-color: var(--accent-cyan);
+      color: #ffffff;
+    }
+
+    .tool-dock {
+      width: min(100%, 540px);
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+      padding: 6px;
+    }
+
+    .tool-btn {
+      min-height: 48px;
+      padding: 6px 4px;
+      border-radius: 12px;
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--text-secondary);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.16s ease;
+    }
+
+    .tool-btn:active { transform: scale(0.95); }
+
+    .tool-btn.active {
+      background: rgba(56, 189, 248, 0.16);
+      border-color: rgba(56, 189, 248, 0.45);
+      color: #ffffff;
+    }
+
+    .tool-btn.active.star-mode {
+      background: rgba(251, 191, 36, 0.16);
+      border-color: rgba(251, 191, 36, 0.5);
+      color: #fde68a;
+    }
+
+    .tool-btn.active.planet-mode {
+      background: rgba(167, 139, 250, 0.18);
+      border-color: rgba(167, 139, 250, 0.5);
+      color: #ddd6fe;
+    }
+
+    /* Modals */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(2, 5, 14, 0.72);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      padding: 14px;
+      z-index: 40;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.22s ease;
+    }
+
+    .modal-backdrop.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    @media (min-width: 600px) {
+      .modal-backdrop { align-items: center; }
+    }
+
+    .modal-sheet {
+      width: min(100%, 440px);
+      max-height: 85dvh;
+      overflow-y: auto;
+      background: var(--glass-strong);
+      border: 1px solid var(--glass-border-bright);
+      border-radius: 22px;
+      padding: 18px;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.75);
+      transform: translateY(20px);
+      transition: transform 0.22s ease;
+    }
+
+    .modal-backdrop.open .modal-sheet {
+      transform: translateY(0);
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+
+    .modal-title {
+      font-size: 16px;
+      font-weight: 800;
+    }
+
+    .field-group {
+      margin-bottom: 13px;
+    }
+
+    .field-label {
+      display: block;
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+
+    .text-input {
+      width: 100%;
+      min-height: 44px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid var(--glass-border);
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text-primary);
+      font-size: 14px;
+      font-family: inherit;
+      outline: none;
+    }
+
+    .text-input:focus {
+      border-color: var(--accent-cyan);
+    }
+
+    .segment-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
       gap: 8px;
     }
 
-    .hashtags-text {
+    .segment-btn {
+      min-height: 44px;
+      padding: 8px 10px;
+      border-radius: 12px;
+      border: 1px solid var(--glass-border);
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--text-secondary);
       font-size: 12.5px;
-      color: #a7f3d0;
-      word-break: break-word;
-      line-height: 1.6;
-      direction: ltr;
-      text-align: right;
-      font-family: monospace;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
     }
 
-    .card-actions {
+    .segment-btn.active {
+      background: rgba(56, 189, 248, 0.2);
+      border-color: var(--accent-cyan);
+      color: #ffffff;
+    }
+
+    .range-wrap {
       display: flex;
       align-items: center;
       gap: 10px;
-      padding-top: 4px;
     }
 
-    .copy-btn {
+    input[type="range"] {
       flex: 1;
-      background: rgba(16, 185, 129, 0.12);
-      border: 1px solid rgba(16, 185, 129, 0.35);
-      color: var(--primary);
-      padding: 10px 14px;
-      border-radius: var(--radius-sm);
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      min-height: 46px;
-      transition: all 0.2s ease;
+      accent-color: var(--accent-cyan);
+      height: 6px;
     }
 
-    .copy-btn:hover, .copy-btn:active {
-      background: var(--primary);
-      color: #041f12;
-      border-color: var(--primary);
-    }
-
-    .copy-btn.copied {
-      background: var(--primary);
-      color: #041f12;
-      border-color: var(--primary);
-    }
-
-    .source-btn {
-      background: var(--bg-subtle);
-      border: 1px solid var(--border-color);
-      color: var(--text-muted);
-      padding: 10px 14px;
-      border-radius: var(--radius-sm);
-      font-size: 13px;
-      text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      min-height: 46px;
-      transition: all 0.2s ease;
-    }
-
-    .source-btn:hover, .source-btn:active {
-      color: var(--text-main);
-      border-color: var(--text-muted);
-      background: rgba(255, 255, 255, 0.05);
-    }
-
-    /* ==========================================================================
-       5. حالات التحميل والخطأ والفراغ
-       ========================================================================== */
-    .state-container {
-      background: var(--bg-card);
-      border: 1px solid var(--border-color);
-      border-radius: var(--radius-lg);
-      padding: 40px 20px;
-      text-align: center;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 14px;
-      box-shadow: var(--shadow-card);
-    }
-
-    .spinner {
-      width: 44px;
-      height: 44px;
-      border: 3px solid rgba(16, 185, 129, 0.2);
-      border-top-color: var(--primary);
-      border-radius: 50%;
-      animation: spin 0.9s linear infinite;
-    }
-
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-
-    .state-title {
-      font-size: 16px;
-      font-weight: 700;
-      color: var(--text-main);
-    }
-
-    .state-desc {
-      font-size: 13px;
-      color: var(--text-muted);
-      max-width: 320px;
-    }
-
-    .retry-btn {
-      background: var(--primary);
-      color: #041f12;
+    .primary-cta {
+      width: 100%;
+      min-height: 48px;
       border: none;
-      padding: 10px 20px;
-      border-radius: var(--radius-sm);
-      font-weight: 700;
-      font-size: 13px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #38bdf8, #6366f1);
+      color: #ffffff;
+      font-size: 14px;
+      font-weight: 800;
       cursor: pointer;
-      min-height: 44px;
+      box-shadow: 0 8px 24px rgba(56, 189, 248, 0.35);
       margin-top: 6px;
     }
 
-    /* ==========================================================================
-       6. إشعار النسخ العائم (Toast Notification)
-       ========================================================================== */
-    .toast {
-      position: fixed;
-      bottom: 24px;
-      left: 50%;
-      transform: translateX(-50%) translateY(100px);
-      background: #10b981;
-      color: #041f12;
-      padding: 12px 22px;
-      border-radius: 30px;
-      font-size: 14px;
-      font-weight: 700;
+    .primary-cta:active { transform: scale(0.98); }
+
+    .preset-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .preset-item {
+      width: 100%;
+      text-align: right;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 1px solid var(--glass-border);
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--text-primary);
+      cursor: pointer;
       display: flex;
       align-items: center;
-      gap: 8px;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .preset-item:active { transform: scale(0.98); }
+    .preset-item.danger {
+      border-color: rgba(251, 113, 133, 0.35);
+      background: rgba(251, 113, 133, 0.09);
+      color: #fecdd3;
+    }
+
+    .preset-title { font-size: 13.5px; font-weight: 700; }
+    .preset-desc { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
+
+    .notice-box {
+      padding: 12px;
+      border-radius: 12px;
+      background: rgba(56, 189, 248, 0.08);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      font-size: 12.5px;
+      line-height: 1.65;
+      color: #dbeafe;
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      top: 76px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-14px);
+      background: rgba(15, 23, 46, 0.94);
+      border: 1px solid var(--glass-border-bright);
+      color: #ffffff;
+      padding: 8px 16px;
+      border-radius: var(--radius-pill);
+      font-size: 12px;
+      font-weight: 700;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
       opacity: 0;
-      visibility: hidden;
-      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-      z-index: 100;
+      pointer-events: none;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      z-index: 60;
+      white-space: nowrap;
     }
 
     .toast.show {
-      transform: translateX(-50%) translateY(0);
       opacity: 1;
-      visibility: visible;
+      transform: translateX(-50%) translateY(0);
     }
 
-    footer {
-      text-align: center;
-      font-size: 11.5px;
-      color: var(--text-dim);
-      margin-top: 10px;
-      padding: 10px;
+    @media (max-width: 400px) {
+      .brand-sub { display: none; }
+      .zoom-rail { left: 6px; }
+      .zoom-rail .icon-btn { width: 38px; height: 38px; }
+      .inspector-card { bottom: 126px; }
     }
   </style>
 </head>
 <body>
+  <div id="app">
+    <canvas id="spaceCanvas" aria-label="فضاء محاكاة الكون التفاعلي"></canvas>
 
-  <div class="app-container">
+    <!-- Top HUD -->
+    <header class="hud-top">
+      <div class="hud-row">
+        <div class="glass-pill brand-badge">
+          <span class="brand-orb" aria-hidden="true"></span>
+          <div class="brand-text">
+            <span class="brand-title">MY UNIVERSE</span>
+            <span class="brand-sub">محاكاة فضائية تفاعلية</span>
+          </div>
+        </div>
 
-    <!-- 1. ترويسة التطبيق والبيانات الوصفية -->
-    <header>
-      <div class="brand-row">
-        <div class="radar-icon-box">📡</div>
-        <div class="brand-titles">
-          <h1>Nature Trend Radar</h1>
-          <p>رادار ترندات تصوير الطبيعة لإنستغرام</p>
+        <div class="top-actions">
+          <button id="btnTrails" class="icon-btn active" title="إظهار/إخفاء المسارات" aria-label="إظهار المسارات">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <path d="M4 17c4-8 12-8 16 0" opacity="0.55"/>
+              <circle cx="19" cy="15" r="2.5" fill="currentColor" stroke="none"/>
+              <path d="M6 12c3.5-5 8.5-5 12 0"/>
+            </svg>
+          </button>
+          <button id="btnSave" class="icon-btn" title="حفظ العالم محلياً" aria-label="حفظ العالم">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+              <polyline points="17 21 17 13 7 13 7 21"/>
+              <polyline points="7 3 7 8 15 8"/>
+            </svg>
+          </button>
+          <button id="btnWorldMenu" class="icon-btn" title="القوالب وإعدادات العالم" aria-label="إدارة العالم">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <circle cx="12" cy="12" r="9"/>
+              <ellipse cx="12" cy="12" rx="9" ry="3.8" transform="rotate(-24 12 12)"/>
+            </svg>
+          </button>
+          <button id="btnInfo" class="icon-btn" title="حول المحاكاة" aria-label="معلومات المحاكاة">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round">
+              <circle cx="12" cy="12" r="9"/>
+              <line x1="12" y1="16" x2="12" y2="11"/>
+              <circle cx="12" cy="8" r="1" fill="currentColor" stroke="none"/>
+            </svg>
+          </button>
         </div>
       </div>
 
-      <div class="header-meta">
-        <span class="status-badge" id="sourceBadge">
-          <span class="pulse-dot"></span>
-          <span id="sourceStatusText">جاري المسح...</span>
-        </span>
-        <span id="lastUpdatedText">آخر تحديث: اليوم</span>
-        <button class="refresh-btn" id="refreshBtn" title="تحديث البيانات">
-          <span>🔄</span>
-          <span>تحديث</span>
-        </button>
+      <!-- Dashboard Telemetry -->
+      <div class="hud-row">
+        <div class="glass-pill stats-strip" role="status" aria-live="polite">
+          <div class="stat-chip">
+            <span class="stat-dot" style="background:#fbbf24;box-shadow:0 0 6px #fbbf24;"></span>
+            <span class="stat-label">النجوم:</span>
+            <span id="statStars" class="stat-val gold">0</span>
+          </div>
+          <div class="stat-chip">
+            <span class="stat-dot" style="background:#a78bfa;box-shadow:0 0 6px #a78bfa;"></span>
+            <span class="stat-label">الكواكب:</span>
+            <span id="statPlanets" class="stat-val">0</span>
+          </div>
+          <div class="stat-chip">
+            <span class="stat-label">الإجمالي:</span>
+            <span id="statTotal" class="stat-val">0</span>
+          </div>
+          <div class="stat-chip">
+            <span class="stat-label">الزمن:</span>
+            <span id="statTime" class="stat-val cyan">1.0×</span>
+          </div>
+          <div class="stat-chip">
+            <span class="stat-label">التكبير:</span>
+            <span id="statZoom" class="stat-val">100%</span>
+          </div>
+        </div>
+      </div>
+
+      <div id="modeHint" class="glass-pill mode-hint">
+        اسحب أي جرم لتحريكه • اسحب الفضاء للتنقل • قرّص للتكبير
       </div>
     </header>
 
-    <!-- 2. أزرار الفلترة حسب الفئة -->
-    <nav class="filter-wrapper" aria-label="تصنيفات الترندات">
-      <div class="filter-scroll" id="filterContainer">
-        <!-- يتم توليد أزرار الفلترة ديناميكيًا من الجافاسكريبت -->
-      </div>
-    </nav>
+    <!-- Side Camera Controls -->
+    <div class="zoom-rail" aria-label="أدوات التكبير والتركيز">
+      <button id="btnZoomIn" class="icon-btn" title="تكبير" aria-label="تكبير">+</button>
+      <button id="btnZoomOut" class="icon-btn" title="تصغير" aria-label="تصغير">−</button>
+      <button id="btnResetView" class="icon-btn" title="توسيط الكون" aria-label="توسيط الكون">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M3 12h4m10 0h4M12 3v4m0 10v4"/>
+        </svg>
+      </button>
+    </div>
 
-    <!-- 3. خلاصة البطاقات وحالات التحميل -->
-    <main id="mainFeed" class="trends-feed">
-      <!-- حالة التحميل المبدئية -->
-      <div class="state-container" id="loadingState">
-        <div class="spinner"></div>
-        <div class="state-title">جاري استكشاف أحدث الترندات...</div>
-        <div class="state-desc">نقوم بجلب أحدث أفكار المحتوى والوسوم الخاصة بالمناظر الطبيعية.</div>
+    <!-- Selected Celestial Body Inspector -->
+    <section id="inspectorCard" class="inspector-card" aria-label="معلومات الجرم المحدد">
+      <div class="inspector-head">
+        <div class="inspector-title-wrap">
+          <span id="inspSwatch" class="inspector-swatch"></span>
+          <div>
+            <div id="inspName" class="inspector-name">جرم فضائي</div>
+            <div id="inspMeta" class="inspector-meta">كوكب • سرعة 0</div>
+          </div>
+        </div>
+        <button id="btnCloseInspector" class="icon-btn" style="width:34px;height:34px;" aria-label="إغلاق">✕</button>
       </div>
-    </main>
 
-    <!-- 4. تذييل بسيط -->
-    <footer>
-      Nature Trend Radar &bull; خفيف وبدون مكتبات خارجية &bull; صُمم للمصورين
+      <div class="inspector-actions">
+        <button id="btnFollowBody" class="mini-btn">🎯 تتبّع</button>
+        <button id="btnAutoOrbit" class="mini-btn">🌀 مدار تلقائي</button>
+        <button id="btnFreezeBody" class="mini-btn">⚓ تثبيت السرعة</button>
+        <button id="btnDeleteBody" class="mini-btn danger">🗑 حذف</button>
+      </div>
+
+      <div class="color-row">
+        <div id="inspSwatches" class="swatches"></div>
+        <div class="size-stepper">
+          <span style="font-size:11px;color:var(--text-secondary);">الحجم</span>
+          <button id="btnSizeDown" class="mini-btn" style="min-height:32px;padding:0 10px;">−</button>
+          <button id="btnSizeUp" class="mini-btn" style="min-height:32px;padding:0 10px;">+</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Bottom Time + Tools Dock -->
+    <footer class="hud-bottom">
+      <div class="glass-pill time-bar">
+        <button id="btnPlayPause" class="play-btn" aria-label="تشغيل أو إيقاف الزمن">
+          <span id="playIcon">⏸</span>
+          <span id="playLabel">إيقاف</span>
+        </button>
+
+        <div class="speed-pills" role="group" aria-label="سرعة الزمن">
+          <button class="speed-chip" data-speed="0.25">0.25×</button>
+          <button class="speed-chip" data-speed="0.5">0.5×</button>
+          <button class="speed-chip active" data-speed="1">1×</button>
+          <button class="speed-chip" data-speed="2">2×</button>
+          <button class="speed-chip" data-speed="4">4×</button>
+        </div>
+      </div>
+
+      <nav class="glass-pill tool-dock" aria-label="أدوات التفاعل">
+        <button id="toolMove" class="tool-btn active" data-mode="move">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M5 9l-3 3 3 3M9 5l3-3 3 3M15 19l-3 3-3-3M19 9l3 3-3 3M2 12h20M12 2v20"/>
+          </svg>
+          <span>تحريك</span>
+        </button>
+
+        <button id="toolStar" class="tool-btn star-mode" data-mode="add-star">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2l2.4 6.6L21 11l-6.6 2.4L12 20l-2.4-6.6L3 11l6.6-2.4L12 2z"/>
+          </svg>
+          <span>نجم</span>
+        </button>
+
+        <button id="toolPlanet" class="tool-btn planet-mode" data-mode="add-planet">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="5.5" fill="currentColor" fill-opacity="0.3"/>
+            <ellipse cx="12" cy="12" rx="10.5" ry="3.8" transform="rotate(-22 12 12)"/>
+          </svg>
+        <span>كوكب</span>
+        </button>
+
+        <button id="toolCustom" class="tool-btn">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+            <circle cx="12" cy="12" r="9"/>
+            <line x1="12" y1="8" x2="12" y2="16"/>
+            <line x1="8" y1="12" x2="16" y2="12"/>
+          </svg>
+          <span>مخصص</span>
+        </button>
+      </nav>
     </footer>
 
-  </div>
+    <!-- Custom Body Creator Modal -->
+    <div id="customModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="customModalTitle">
+      <div class="modal-sheet">
+        <div class="modal-header">
+          <h2 id="customModalTitle" class="modal-title">إنشاء جرم فضائي مخصص</h2>
+          <button class="icon-btn" data-close="customModal" aria-label="إغلاق">✕</button>
+        </div>
 
-  <!-- 5. نافذة التأكيد السريعة (Toast) للنسخ -->
-  <div class="toast" id="toastBox">
-    <span>✓</span>
-    <span id="toastMessage">تم نسخ الهاشتاغات بنجاح!</span>
-  </div>
+        <div class="field-group">
+          <label class="field-label" for="customName">اسم الجرم (اختياري)</label>
+          <input id="customName" class="text-input" type="text" maxlength="24" placeholder="مثال: أوريون، كوكب الزمرد..." />
+        </div>
 
-  <!-- ==========================================================================
-       الجافاسكريبت (JavaScript): المنطق والبيانات وجلب الـ CSV
-       ========================================================================== -->
-  <script>
-    /**
-     * =========================================================================
-     * المتغير الأساسي: رابط Google Sheet المنشور كـ CSV
-     * =========================================================================
-     * ضع رابط ملفك المنشور هنا بصيغة CSV.
-     * إذا تركته فارغاً أو تعذر الوصول إليه، سيعرض التطبيق تلقائياً بيانات تجريبية واقعية.
-     */
-    const SHEET_URL = "";
-
-    /**
-     * =========================================================================
-     * البيانات التجريبية الواقعية (5 ترندات لمصوري الطبيعة على إنستغرام)
-     * =========================================================================
-     */
-    const DEMO_TRENDS = [
-      {
-        date: "2026-09-24",
-        trend_title: "انتقال الضباب السريع مع شروق الشمس (Sunrise Fog Transition)",
-        category: "Reels",
-        hashtags: "#naturephotography #landscapephotography #goldenhour #mistyforest #reelsnature",
-        content_idea: "فيديو 5 ثوانٍ يبدأ بلقطة مظلمة لغابة كثيفة يغمرها الضباب، ثم يظهر شعاع الشمس الذهبي فجأة يخترق الأشجار بالتزامن مع ذروة الصوت (Sound Drop).",
-        source_link: "https://www.instagram.com"
-      },
-      {
-        date: "2026-09-23",
-        trend_title: "درجات ألوان الخريف الدافئة والمزاجية (Moody Earthy Tones)",
-        category: "Editing",
-        hashtags: "#moodytones #autumncolors #lightroomnature #earthyvibes #forestlovers",
-        content_idea: "مقارنة قبل وبعد (Before & After) لتحرير لقطة جبل أو غابة بألوان ترابية وبرتقالية عميقة، مع كتابة قيم HSL وأسرار تدرج الألوان في الوصف.",
-        source_link: "https://www.instagram.com"
-      },
-      {
-        date: "2026-09-22",
-        trend_title: "تصوير المياه الانسيابية بالهاتف دون فلتر ND (Long Exposure Hack)",
-        category: "Gear",
-        hashtags: "#waterfallphotography #longexposure #naturegeartips #shutterspeed #cameratricks",
-        content_idea: "كاروسيل تعليمي (4 شرائح) يوضح كيف تلتقط شلالاً أو نهراً ناعماً بالهاتف فقط عبر تقنية Live Photo في الآيفون أو وضع Pro في أندرويد بسرعة 1/2 ثانية.",
-        source_link: "https://www.instagram.com"
-      },
-      {
-        date: "2026-09-21",
-        trend_title: "حزمة وسوم الطبيعة الهادئة الأكثر صعوداً في Explore هذا الأسبوع",
-        category: "Hashtags",
-        hashtags: "#visualsofearth #earthpix #roamtheplanet #artofvisuals #wildernesstones",
-        content_idea: "منشور يعرض أفضل 3 صور التقطتها مؤخراً مع استخدام وسوم متوازنة متوسطة الشهرة لزيادة فرص الظهور في صفحة الاستكشاف (Explore Page).",
-        source_link: "https://www.instagram.com"
-      },
-      {
-        date: "2026-09-20",
-        trend_title: "لقطة الماكرو لقطرات الندى على أوراق الشجر (Dewdrop Macro Reel)",
-        category: "Reels",
-        hashtags: "#macronature #dewdrops #macrodetails #natureinmotion #greennature",
-        content_idea: "مقطع ريل مقرب جداً بحركة بطيئة (120fps) يركز على قطرة ماء تهتز على حافة ورقة شجر مبتلة بعد المطر مباشرة، مع سؤال تفاعلي في الوصف.",
-        source_link: "https://www.instagram.com"
-      }
-    ];
-
-    let allTrends = [];
-    let currentCategory = "ALL";
-
-    const mainFeed = document.getElementById("mainFeed");
-    const filterContainer = document.getElementById("filterContainer");
-    const sourceStatusText = document.getElementById("sourceStatusText");
-    const lastUpdatedText = document.getElementById("lastUpdatedText");
-    const refreshBtn = document.getElementById("refreshBtn");
-    const toastBox = document.getElementById("toastBox");
-    const toastMessage = document.getElementById("toastMessage");
-
-    /**
-     * =========================================================================
-     * دالة تحويل الـ CSV إلى مصفوفة كائنات (بدون أي مكتبة خارجية)
-     * =========================================================================
-     */
-    function parseCSV(text) {
-      if (!text || !text.trim()) return [];
-
-      const lines = text.trim().split(/\r?\n/).filter(line => line.trim().length > 0);
-      if (lines.length < 2) return [];
-
-      function splitCSVLine(line) {
-        const values = [];
-        let curVal = "";
-        let insideQuotes = false;
-
-        for (let i = 0; i < line.length; i++) {
-          const c = line[i];
-          if (c === '"') {
-            if (insideQuotes && line[i + 1] === '"') {
-              curVal += '"';
-              i++;
-            } else {
-              insideQuotes = !insideQuotes;
-            }
-          } else if (c === ',' && !insideQuotes) {
-            values.push(curVal.trim());
-            curVal = "";
-          } else {
-            curVal += c;
-          }
-        }
-        values.push(curVal.trim());
-        return values;
-      }
-
-      const rawHeaders = splitCSVLine(lines[0]);
-      const headers = rawHeaders.map(h => h.toLowerCase().trim().replace(/[\s\-]+/g, '_'));
-
-      const results = [];
-
-      for (let i = 1; i < lines.length; i++) {
-        const rowValues = splitCSVLine(lines[i]);
-        if (rowValues.length === 0 || (rowValues.length === 1 && !rowValues[0])) continue;
-
-        const rowObj = {};
-        headers.forEach((header, idx) => {
-          rowObj[header] = rowValues[idx] !== undefined ? rowValues[idx] : "";
-        });
-
-        results.push({
-          date: rowObj.date || new Date().toISOString().split('T')[0],
-          trend_title: rowObj.trend_title || rowObj.title || rowObj.trend || "ترند بدون عنوان",
-          category: rowObj.category || rowObj.type || "General",
-          hashtags: rowObj.hashtags || rowObj.tags || "",
-          content_idea: rowObj.content_idea || rowObj.idea || rowObj.description || "",
-          source_link: rowObj.source_link || rowObj.link || rowObj.url || "https://www.instagram.com"
-        });
-      }
-
-      return results;
-    }
-
-    /**
-     * =========================================================================
-     * دالة جلب البيانات (Fetch Data)
-     * =========================================================================
-     */
-    async function loadTrendsData() {
-      renderLoadingState();
-      sourceStatusText.textContent = "جاري الجلب...";
-
-      const isUrlEmpty = !SHEET_URL || SHEET_URL.trim() === "" || SHEET_URL.includes("ضع_الرابط_هنا");
-
-      if (isUrlEmpty) {
-        setTimeout(() => {
-          applyTrends(DEMO_TRENDS, false);
-        }, 400);
-        return;
-      }
-
-      try {
-        const response = await fetch(SHEET_URL);
-        if (!response.ok) {
-          throw new Error("HTTP error! status: " + response.status);
-        }
-        const csvText = await response.text();
-        const parsedData = parseCSV(csvText);
-
-        if (parsedData.length > 0) {
-          applyTrends(parsedData, true);
-        } else {
-          applyTrends(DEMO_TRENDS, false);
-        }
-      } catch (err) {
-        console.warn("فشل جلب الـ CSV عبر الشبكة، تم الانتقال للبيانات التجريبية:", err);
-        applyTrends(DEMO_TRENDS, false);
-      }
-    }
-
-    function applyTrends(trendsList, isLiveFromSheet) {
-      allTrends = trendsList;
-
-      if (isLiveFromSheet) {
-        sourceStatusText.textContent = "مباشر: Google Sheet";
-      } else {
-        sourceStatusText.textContent = "بيانات واقعية تجريبية";
-      }
-
-      const latestDate = trendsList.reduce((max, item) => item.date > max ? item.date : max, trendsList[0]?.date || "");
-      lastUpdatedText.textContent = latestDate ? `آخر تحديث: ${latestDate}` : "آخر تحديث: اليوم";
-
-      renderFilterButtons();
-      renderFeed();
-    }
-
-    function renderFilterButtons() {
-      const categoriesSet = new Set();
-      allTrends.forEach(t => {
-        if (t.category) categoriesSet.add(t.category.trim());
-      });
-
-      const categories = Array.from(categoriesSet);
-
-      let html = `
-        <button class="filter-btn ${currentCategory === 'ALL' ? 'active' : ''}" data-cat="ALL">
-          <span>الكل</span>
-          <span class="filter-count">${allTrends.length}</span>
-        </button>
-      `;
-
-      categories.forEach(cat => {
-        const count = allTrends.filter(t => t.category.toLowerCase() === cat.toLowerCase()).length;
-        const isActive = currentCategory.toLowerCase() === cat.toLowerCase();
-        html += `
-          <button class="filter-btn ${isActive ? 'active' : ''}" data-cat="${escapeHtml(cat)}">
-            <span>${escapeHtml(cat)}</span>
-            <span class="filter-count">${count}</span>
-          </button>
-        `;
-      });
-
-      filterContainer.innerHTML = html;
-
-      const filterBtns = filterContainer.querySelectorAll(".filter-btn");
-      filterBtns.forEach(btn => {
-        btn.addEventListener("click", () => {
-          currentCategory = btn.getAttribute("data-cat");
-          filterBtns.forEach(b => b.classList.remove("active"));
-          btn.classList.add("active");
-          renderFeed();
-        });
-      });
-    }
-
-    function getCategoryClass(category) {
-      const cat = (category || "").toLowerCase();
-      if (cat.includes("reel")) return "cat-reels";
-      if (cat.includes("hash")) return "cat-hashtags";
-      if (cat.includes("edit")) return "cat-editing";
-      if (cat.includes("gear")) return "cat-gear";
-      return "cat-default";
-    }
-
-    function getCategoryIcon(category) {
-      const cat = (category || "").toLowerCase();
-      if (cat.includes("reel")) return "🎬";
-      if (cat.includes("hash")) return "🏷️";
-      if (cat.includes("edit")) return "🎨";
-      if (cat.includes("gear")) return "📷";
-      return "🌿";
-    }
-
-    function renderFeed() {
-      const filtered = currentCategory === "ALL"
-        ? allTrends
-        : allTrends.filter(t => t.category.toLowerCase() === currentCategory.toLowerCase());
-
-      if (filtered.length === 0) {
-        mainFeed.innerHTML = `
-          <div class="state-container">
-            <div style="font-size: 38px;">🔍</div>
-            <div class="state-title">لا توجد ترندات في هذه الفئة</div>
-            <div class="state-desc">اختر فئة أخرى أو انقر على "الكل" لمشاهدة جميع الأفكار.</div>
+        <div class="field-group">
+          <span class="field-label">النوع</span>
+          <div class="segment-grid">
+            <button id="typeStarBtn" class="segment-btn" type="button">⭐ نجم مضيء</button>
+            <button id="typePlanetBtn" class="segment-btn active" type="button">🪐 كوكب</button>
           </div>
-        `;
-        return;
-      }
+        </div>
 
-      mainFeed.innerHTML = filtered.map((trend, index) => {
-        const catClass = getCategoryClass(trend.category);
-        const catIcon = getCategoryIcon(trend.category);
-        const safeHashtags = escapeHtml(trend.hashtags);
-        const safeIdea = escapeHtml(trend.content_idea);
-        const safeTitle = escapeHtml(trend.trend_title);
-        const safeDate = escapeHtml(trend.date);
-        const sourceUrl = trend.source_link && trend.source_link.startsWith("http")
-          ? trend.source_link
-          : "https://www.instagram.com";
+        <div class="field-group">
+          <span class="field-label">الحجم: <strong id="customSizeLabel">11</strong></span>
+          <div class="range-wrap">
+            <input id="customSizeRange" type="range" min="5" max="42" value="11" />
+          </div>
+        </div>
 
-        return `
-          <article class="trend-card" data-index="${index}">
-            <div class="card-meta-top">
-              <span class="category-badge ${catClass}">
-                <span>${catIcon}</span>
-                <span>${escapeHtml(trend.category)}</span>
-              </span>
-              <time class="trend-date" datetime="${safeDate}">${safeDate}</time>
+        <div class="field-group">
+          <span class="field-label">اللون</span>
+          <div id="customSwatches" class="swatches"></div>
+        </div>
+
+        <div id="customRingGroup" class="field-group">
+          <div class="segment-grid">
+            <button id="ringNoBtn" class="segment-btn active" type="button">بدون حلقات</button>
+            <button id="ringYesBtn" class="segment-btn" type="button">مع حلقات 🪐</button>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <span class="field-label">الحركة الابتدائية</span>
+          <div class="segment-grid">
+            <button id="orbitAutoBtn" class="segment-btn active" type="button">🌀 مدار حول أقرب نجم</button>
+            <button id="orbitStaticBtn" class="segment-btn" type="button">⚓ ثابت في موقعه</button>
+          </div>
+        </div>
+
+        <button id="btnSpawnCustom" class="primary-cta" type="button">إضافة إلى مركز الرؤية</button>
+      </div>
+    </div>
+
+    <!-- World Presets & Storage Modal -->
+    <div id="worldModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="worldModalTitle">
+      <div class="modal-sheet">
+        <div class="modal-header">
+          <h2 id="worldModalTitle" class="modal-title">إدارة العالم والقوالب</h2>
+          <button class="icon-btn" data-close="worldModal" aria-label="إغلاق">✕</button>
+        </div>
+
+        <div class="preset-list">
+          <button class="preset-item" data-preset="solar">
+            <div>
+              <div class="preset-title">☀️ النظام الشمسي المبسّط</div>
+              <div class="preset-desc">نجم مركزي ذهبي مع 5 كواكب متنوعة ومدارات جاهزة</div>
             </div>
+            <span>تشغيل</span>
+          </button>
 
-            <h2 class="trend-title">${safeTitle}</h2>
-
-            ${safeIdea ? `
-              <div class="idea-box">
-                <div class="idea-box-title">
-                  <span>💡</span>
-                  <span>فكرة المحتوى المقترحة:</span>
-                </div>
-                <div>${safeIdea}</div>
-              </div>
-            ` : ""}
-
-            ${safeHashtags ? `
-              <div class="hashtags-section">
-                <div class="hashtags-text">${safeHashtags}</div>
-              </div>
-            ` : ""}
-
-            <div class="card-actions">
-              ${safeHashtags ? `
-                <button class="copy-btn" onclick="copyHashtags(this, '${escapeForAttribute(trend.hashtags)}')">
-                  <span>📋</span>
-                  <span>نسخ الهاشتاغات</span>
-                </button>
-              ` : ""}
-
-              <a href="${sourceUrl}" target="_blank" rel="noopener noreferrer" class="source-btn" title="فتح مصدر الترند">
-                <span>عرض المصدر</span>
-                <span>↗</span>
-              </a>
+          <button class="preset-item" data-preset="binary">
+            <div>
+              <div class="preset-title">✨ رقصة النجمين التوأمين</div>
+              <div class="preset-desc">نجمان يدوران حول بعضهما مع كواكب محيطة</div>
             </div>
-          </article>
-        `;
-      }).join("");
-    }
+            <span>تشغيل</span>
+          </button>
 
-    function copyHashtags(buttonElement, tagsText) {
-      if (!tagsText) return;
+          <button class="preset-item" data-preset="bluegiant">
+            <div>
+              <div class="preset-title">💠 العملاق الأزرق وسبعة عوالم</div>
+              <div class="preset-desc">مشهد سينمائي سريع لكواكب ملونة حول نجم أزرق</div>
+            </div>
+            <span>تشغيل</span>
+          </button>
 
-      const performFeedback = () => {
-        const originalText = buttonElement.innerHTML;
-        buttonElement.classList.add("copied");
-        buttonElement.innerHTML = `<span>✓</span><span>تم النسخ!</span>`;
+          <button class="preset-item danger" data-preset="empty">
+            <div>
+              <div class="preset-title">🌌 فضاء فارغ (ابدأ من الصفر)</div>
+              <div class="preset-desc">إزالة كل الأجرام لتصميم كونك الخاص</div>
+            </div>
+            <span>مسح</span>
+          </button>
+        </div>
+      </div>
+    </div>
 
-        showToast("تم نسخ الهاشتاغات إلى الحافظة بنجاح!");
+    <!-- Info Modal -->
+    <div id="infoModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="infoModalTitle">
+      <div class="modal-sheet">
+        <div class="modal-header">
+          <h2 id="infoModalTitle" class="modal-title">حول محاكاة MY UNIVERSE</h2>
+          <button class="icon-btn" data-close="infoModal" aria-label="إغلاق">✕</button>
+        </div>
 
-        setTimeout(() => {
-          buttonElement.classList.remove("copied");
-          buttonElement.innerHTML = originalText;
-        }, 2200);
+        <div class="notice-box">
+          <strong>ملاحظة علمية مهمة:</strong><br/>
+          تعتمد هذه التجربة التفاعلية على <strong>قواعد حركة وجاذبية مبسطة</strong> مصممة لتمنحك تحكماً ممتعاً وسلساً على شاشة الهاتف، ولا تمثل محاكاة فيزياء فلكية دقيقة.
+        </div>
+
+        <div style="margin-top:12px;font-size:12.5px;line-height:1.75;color:var(--text-secondary);">
+          <p><strong>طريقة اللعب والتحكم:</strong></p>
+          <p>• <strong>الإنشاء السريع:</strong> اختر «نجم» أو «كوكب» ثم المس الفضاء، أو اسحب بإصبعك لإطلاق الجرم بسرعة واتجاه محددين.</p>
+          <p>• <strong>التحريك:</strong> في وضع «تحريك»، اسحب أي نجم أو كوكب لتغيير موقعه، أو اضغط عليه لفتح لوحة التعديل.</p>
+          <p>• <strong>الكاميرا:</strong> اسحب بإصبع واحد في الفراغ للتنقل، واستخدم إصبعين (قرص) للتكبير والتصغير.</p>
+          <p>• <strong>الحفظ التلقائي:</strong> يتم حفظ حالة عالمك تلقائياً في ذاكرة الجهاز المحلية.</p>
+        </div>
+      </div>
+    </div>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  </div>
+
+  <script>
+    (() => {
+      "use strict";
+
+      /* ---------------------------------------------------------------
+         1. Configuration & Color Palettes
+         --------------------------------------------------------------- */
+      const STORAGE_KEY = "my_universe_world_v1";
+      const STAR_COLORS = ["#fbbf24", "#fde68a", "#60a5fa", "#fb7185", "#c084fc", "#f97316"];
+      const PLANET_COLORS = ["#38bdf8", "#a78bfa", "#34d399", "#f472b6", "#fb923c", "#94a3b8", "#22d3ee"];
+
+      // Simplified interactive attraction constant (NOT real astrophysics)
+      const SIM_G = 145;
+      const SOFTENING = 420;
+      const MAX_SPEED = 420;
+      const MAX_BODIES = 120;
+      const TRAIL_MAX = 26;
+
+      const STAR_NAMES = ["الشمس", "سيريوس", "فيجا", "قلب العقرب", "النسر", "أركتوروس", "العيوق"];
+      const PLANET_NAMES = ["أزرقاء", "زحل الصغير", "الأخضر", "المريخية", "سماوي", "الكريستال", "الأرجواني", "فجر"];
+
+      /* ---------------------------------------------------------------
+         2. DOM References
+         --------------------------------------------------------------- */
+      const canvas = document.getElementById("spaceCanvas");
+      const ctx = canvas.getContext("2d", { alpha: false });
+
+      const statStars = document.getElementById("statStars");
+      const statPlanets = document.getElementById("statPlanets");
+      const statTotal = document.getElementById("statTotal");
+      const statTime = document.getElementById("statTime");
+      const statZoom = document.getElementById("statZoom");
+      const modeHint = document.getElementById("modeHint");
+      const toastEl = document.getElementById("toast");
+
+      const btnPlayPause = document.getElementById("btnPlayPause");
+      const playIcon = document.getElementById("playIcon");
+      const playLabel = document.getElementById("playLabel");
+      const speedChips = Array.from(document.querySelectorAll(".speed-chip"));
+
+      const toolMove = document.getElementById("toolMove");
+      const toolStar = document.getElementById("toolStar");
+      const toolPlanet = document.getElementById("toolPlanet");
+      const toolCustom = document.getElementById("toolCustom");
+
+      const btnTrails = document.getElementById("btnTrails");
+      const btnSave = document.getElementById("btnSave");
+      const btnWorldMenu = document.getElementById("btnWorldMenu");
+      const btnInfo = document.getElementById("btnInfo");
+      const btnZoomIn = document.getElementById("btnZoomIn");
+      const btnZoomOut = document.getElementById("btnZoomOut");
+      const btnResetView = document.getElementById("btnResetView");
+
+      // Inspector DOM
+      const inspectorCard = document.getElementById("inspectorCard");
+      const inspSwatch = document.getElementById("inspSwatch");
+      const inspName = document.getElementById("inspName");
+      const inspMeta = document.getElementById("inspMeta");
+      const inspSwatches = document.getElementById("inspSwatches");
+      const btnCloseInspector = document.getElementById("btnCloseInspector");
+      const btnFollowBody = document.getElementById("btnFollowBody");
+      const btnAutoOrbit = document.getElementById("btnAutoOrbit");
+      const btnFreezeBody = document.getElementById("btnFreezeBody");
+      const btnDeleteBody = document.getElementById("btnDeleteBody");
+      const btnSizeDown = document.getElementById("btnSizeDown");
+      const btnSizeUp = document.getElementById("btnSizeUp");
+
+      // Custom Modal DOM
+      const customName = document.getElementById("customName");
+      const typeStarBtn = document.getElementById("typeStarBtn");
+      const typePlanetBtn = document.getElementById("typePlanetBtn");
+      const customSizeRange = document.getElementById("customSizeRange");
+      const customSizeLabel = document.getElementById("customSizeLabel");
+      const customSwatches = document.getElementById("customSwatches");
+      const customRingGroup = document.getElementById("customRingGroup");
+      const ringNoBtn = document.getElementById("ringNoBtn");
+      const ringYesBtn = document.getElementById("ringYesBtn");
+      const orbitAutoBtn = document.getElementById("orbitAutoBtn");
+      const orbitStaticBtn = document.getElementById("orbitStaticBtn");
+      const btnSpawnCustom = document.getElementById("btnSpawnCustom");
+
+      /* ---------------------------------------------------------------
+         3. State
+         --------------------------------------------------------------- */
+      let width = 0;
+      let height = 0;
+      let dpr = 1;
+
+      let bodies = [];
+      let nextId = 1;
+      let selectedId = null;
+      let followId = null;
+
+      let mode = "move"; // "move" | "add-star" | "add-planet"
+      let isPaused = false;
+      let timeSpeed = 1;
+      let showTrails = true;
+
+      const camera = {
+        x: 0,
+        y: 0,
+        zoom: 1,
+        targetZoom: 1
       };
 
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(tagsText)
-          .then(performFeedback)
-          .catch(() => fallbackCopy(tagsText, performFeedback));
-      } else {
-        fallbackCopy(tagsText, performFeedback);
+      // Background parallax layers & cached sprite maps for smooth 60fps on mid-range Android
+      let bgStars = [];
+      let nebulaCanvas = null;
+      const glowCache = new Map();
+
+      // Pointer & gesture state
+      const activePointers = new Map();
+      let interaction = {
+        type: null, // "pan" | "drag-body" | "slingshot" | "pinch"
+        bodyId: null,
+        startScreenX: 0,
+        startScreenY: 0,
+        lastScreenX: 0,
+        lastScreenY: 0,
+        worldStartX: 0,
+        worldStartY: 0,
+        worldCurrX: 0,
+        worldCurrY: 0,
+        moved: false,
+        pinchDist: 0,
+        pinchMidX: 0,
+        pinchMidY: 0
+      };
+
+      // Custom creator state
+      const customForm = {
+        kind: "planet",
+        size: 11,
+        color: PLANET_COLORS[0],
+        ring: false,
+        autoOrbit: true
+      };
+
+      let toastTimer = null;
+      let lastSaveTime = 0;
+      let simTime = 0;
+
+      /* ---------------------------------------------------------------
+         4. Utility Helpers
+         --------------------------------------------------------------- */
+      function showToast(msg) {
+        toastEl.textContent = msg;
+        toastEl.classList.add("show");
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => toastEl.classList.remove("show"), 2000);
       }
-    }
 
-    function fallbackCopy(text, callback) {
-      const textarea = document.createElement("textarea");
-      textarea.value = text;
-      textarea.style.position = "fixed";
-      textarea.style.opacity = "0";
-      document.body.appendChild(textarea);
-      textarea.focus();
-      textarea.select();
-      try {
-        document.execCommand("copy");
-        callback();
-      } catch (err) {
-        alert("تعذر النسخ التلقائي، يمكنك نسخ الهاشتاغات يدوياً.");
+      function clamp(val, min, max) {
+        return Math.max(min, Math.min(max, val));
       }
-      document.body.removeChild(textarea);
-    }
 
-    let toastTimeout;
-    function showToast(message) {
-      toastMessage.textContent = message;
-      toastBox.classList.add("show");
+      function hexToRgba(hex, alpha) {
+        const clean = hex.replace("#", "");
+        const num = parseInt(clean, 16);
+        const r = (num >> 16) & 255;
+        const g = (num >> 8) & 255;
+        const b = num & 255;
+        return `rgba(${r},${g},${b},${alpha})`;
+      }
 
-      clearTimeout(toastTimeout);
-      toastTimeout = setTimeout(() => {
-        toastBox.classList.remove("show");
-      }, 2500);
-    }
+      function screenToWorld(sx, sy) {
+        return {
+          x: (sx - width * 0.5) / camera.zoom + camera.x,
+          y: (sy - height * 0.5) / camera.zoom + camera.y
+        };
+      }
 
-    function renderLoadingState() {
-      mainFeed.innerHTML = `
-        <div class="state-container">
-          <div class="spinner"></div>
-          <div class="state-title">جاري استكشاف أحدث الترندات...</div>
-          <div class="state-desc">نقرأ البيانات ونحلل الهاشتاغات المناسبة للطبيعة.</div>
-        </div>
-      `;
-    }
+      function worldToScreen(wx, wy) {
+        return {
+          x: (wx - camera.x) * camera.zoom + width * 0.5,
+          y: (wy - camera.y) * camera.zoom + height * 0.5
+        };
+      }
 
-    function escapeHtml(str) {
-      if (!str) return "";
-      return String(str)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-    }
+      function calcMass(kind, radius) {
+        if (kind === "star") {
+          return Math.pow(radius, 2.2) * 0.72;
+        }
+        return Math.pow(radius, 1.8) * 0.08;
+      }
 
-    function escapeForAttribute(str) {
-      if (!str) return "";
-      return String(str)
-        .replace(/\\/g, "\\\\")
-        .replace(/'/g, "\\'")
-        .replace(/"/g, "&quot;")
-        .replace(/\n/g, " ");
-    }
+      function makeBody(opts) {
+        const kind = opts.kind === "star" ? "star" : "planet";
+        const radius = clamp(Number(opts.radius) || (kind === "star" ? 24 : 10), 4, 55);
+        const color = opts.color || (kind === "star" ? STAR_COLORS[0] : PLANET_COLORS[0]);
+        const name = (opts.name || "").trim() || (
+          kind === "star"
+            ? STAR_NAMES[(nextId - 1) % STAR_NAMES.length] + " " + nextId
+            : PLANET_NAMES[(nextId - 1) % PLANET_NAMES.length] + " " + nextId
+        );
+        return {
+          id: opts.id || nextId++,
+          name,
+          kind,
+          x: Number(opts.x) || 0,
+          y: Number(opts.y) || 0,
+          vx: Number(opts.vx) || 0,
+          vy: Number(opts.vy) || 0,
+          radius,
+          mass: calcMass(kind, radius),
+          color,
+          ring: kind === "planet" && Boolean(opts.ring),
+          trail: []
+        };
+      }
 
-    refreshBtn.addEventListener("click", () => {
-      loadTrendsData();
-    });
+      function findNearestStar(x, y, excludeId = -1) {
+        let best = null;
+        let bestDistSq = Infinity;
+        for (let i = 0; i < bodies.length; i++) {
+          const b = bodies[i];
+          if (b.kind !== "star" || b.id === excludeId) continue;
+          const dx = b.x - x;
+          const dy = b.y - y;
+          const d2 = dx * dx + dy * dy;
+          if (d2 < bestDistSq) {
+            bestDistSq = d2;
+            best = b;
+          }
+        }
+        return best;
+      }
 
-    window.addEventListener("DOMContentLoaded", () => {
-      loadTrendsData();
-    });
+      function computeOrbitalVelocity(x, y, centerBody) {
+        if (!centerBody) return { vx: 0, vy: 0 };
+        const dx = x - centerBody.x;
+        const dy = y - centerBody.y;
+        const dist = Math.hypot(dx, dy);
+        if (dist < 12) return { vx: 0, vy: 0 };
+        const speed = Math.sqrt((SIM_G * centerBody.mass) / Math.sqrt(dist * dist + SOFTENING));
+        const clampedSpeed = Math.min(speed, MAX_SPEED * 0.75);
+        // Perpendicular tangent vector
+        const tx = -dy / dist;
+        const ty = dx / dist;
+        return {
+          vx: centerBody.vx + tx * clampedSpeed,
+          vy: centerBody.vy + ty * clampedSpeed
+        };
+      }
+
+      /* ---------------------------------------------------------------
+         5. Cached Graphics (Performance for Mid-Range Android)
+         --------------------------------------------------------------- */
+      function getGlowSprite(color, isStar) {
+        const key = `${color}_${isStar ? "s" : "p"}`;
+        if (glowCache.has(key)) return glowCache.get(key);
+
+        const size = isStar ? 160 : 96;
+        const c = document.createElement("canvas");
+        c.width = size;
+        c.height = size;
+        const gctx = c.getContext("2d");
+        const half = size / 2;
+
+        const grad = gctx.createRadialGradient(half, half, 2, half, half, half);
+        if (isStar) {
+          grad.addColorStop(0, "rgba(255,255,255,0.95)");
+          grad.addColorStop(0.22, hexToRgba(color, 0.75));
+          grad.addColorStop(0.5, hexToRgba(color, 0.22));
+          grad.addColorStop(1, hexToRgba(color, 0));
+        } else {
+          grad.addColorStop(0, hexToRgba(color, 0.45));
+          grad.addColorStop(0.55, hexToRgba(color, 0.14));
+          grad.addColorStop(1, hexToRgba(color, 0));
+        }
+
+        gctx.fillStyle = grad;
+        gctx.fillRect(0, 0, size, size);
+        glowCache.set(key, c);
+        return c;
+      }
+
+      function buildNebulaBackdrop() {
+        const c = document.createElement("canvas");
+        c.width = 512;
+        c.height = 512;
+        const nctx = c.getContext("2d");
+
+        const blobs = [
+          { x: 150, y: 160, r: 220, color: "rgba(56, 189, 248, 0.09)" },
+          { x: 370, y: 200, r: 210, color: "rgba(139, 92, 246, 0.08)" },
+          { x: 260, y: 370, r: 230, color: "rgba(251, 146, 60, 0.05)" }
+        ];
+
+        for (const b of blobs) {
+          const g = nctx.createRadialGradient(b.x, b.y, 10, b.x, b.y, b.r);
+          g.addColorStop(0, b.color);
+          g.addColorStop(1, "rgba(0,0,0,0)");
+          nctx.fillStyle = g;
+          nctx.fillRect(0, 0, 512, 512);
+        }
+        nebulaCanvas = c;
+      }
+
+      function initStarfield() {
+        bgStars = [];
+        const count = 185;
+        for (let i = 0; i < count; i++) {
+          const layer = i % 3; // 0 = far, 1 = mid, 2 = near
+          bgStars.push({
+            x: Math.random() * 2400 - 1200,
+            y: Math.random() * 2400 - 1200,
+            r: layer === 0 ? 0.8 : layer === 1 ? 1.25 : 1.75,
+            parallax: layer === 0 ? 0.07 : layer === 1 ? 0.15 : 0.26,
+            alpha: 0.35 + Math.random() * 0.55,
+            phase: Math.random() * Math.PI * 2,
+            speed: 0.8 + Math.random() * 1.8,
+            driftX: (Math.random() - 0.5) * 4,
+            driftY: (Math.random() - 0.5) * 4,
+            tint: i % 11 === 0 ? "#bae6fd" : i % 13 === 0 ? "#fef08a" : "#ffffff"
+          });
+        }
+      }
+
+      /* ---------------------------------------------------------------
+         6. Presets & Persistence
+         --------------------------------------------------------------- */
+      function loadPreset(presetKey, announce = true) {
+        bodies = [];
+        nextId = 1;
+        selectedId = null;
+        followId = null;
+        camera.x = 0;
+        camera.y = 0;
+        camera.zoom = width < 480 ? 0.72 : 0.92;
+        camera.targetZoom = camera.zoom;
+
+        if (presetKey === "solar") {
+          const sun = makeBody({ name: "الشمس الذهبية", kind: "star", x: 0, y: 0, radius: 28, color: "#fbbf24" });
+          bodies.push(sun);
+
+          const planetsSpec = [
+            { name: "عطارد الياقوتي", dist: 92, radius: 6.5, color: "#94a3b8", ring: false, angle: 0.3 },
+            { name: "الزمرد", dist: 145, radius: 9.5, color: "#34d399", ring: false, angle: 2.1 },
+            { name: "أزرقاء", dist: 205, radius: 11, color: "#38bdf8", ring: false, angle: 4.1 },
+            { name: "زحل الحلقي", dist: 280, radius: 15, color: "#a78bfa", ring: true, angle: 5.5 },
+            { name: "العنقاء البعيد", dist: 355, radius: 10.5, color: "#fb923c", ring: false, angle: 1.2 }
+          ];
+
+          for (const p of planetsSpec) {
+            const px = Math.cos(p.angle) * p.dist;
+            const py = Math.sin(p.angle) * p.dist;
+            const v = computeOrbitalVelocity(px, py, sun);
+            bodies.push(makeBody({
+              name: p.name,
+              kind: "planet",
+              x: px,
+              y: py,
+              vx: v.vx,
+              vy: v.vy,
+              radius: p.radius,
+              color: p.color,
+              ring: p.ring
+            }));
+          }
+          if (announce) showToast("تم تحميل النظام الشمسي المبسّط");
+        } else if (presetKey === "binary") {
+          const s1 = makeBody({ name: "النجم أ", kind: "star", x: -75, y: 0, vx: 0, vy: -46, radius: 22, color: "#fbbf24" });
+          const s2 = makeBody({ name: "النجم ب", kind: "star", x: 75, y: 0, vx: 0, vy: 46, radius: 22, color: "#60a5fa" });
+          bodies.push(s1, s2);
+
+          const virtualCenter = { x: 0, y: 0, vx: 0, vy: 0, mass: s1.mass + s2.mass };
+          const outer = [
+            { name: "مراقب ١", dist: 230, r: 9, color: "#34d399", ring: false, a: 0.7 },
+            { name: "مراقب ٢", dist: 315, r: 13, color: "#f472b6", ring: true, a: 3.4 },
+            { name: "مراقب ٣", dist: 395, r: 8, color: "#38bdf8", ring: false, a: 5.1 }
+          ];
+          for (const o of outer) {
+            const px = Math.cos(o.a) * o.dist;
+            const py = Math.sin(o.a) * o.dist;
+            const v = computeOrbitalVelocity(px, py, virtualCenter);
+            bodies.push(makeBody({ name: o.name, kind: "planet", x: px, y: py, vx: v.vx, vy: v.vy, radius: o.r, color: o.color, ring: o.ring }));
+          }
+          if (announce) showToast("تم تحميل نظام النجمين التوأمين");
+        } else if (presetKey === "bluegiant") {
+          const giant = makeBody({ name: "العملاق الأزرق", kind: "star", x: 0, y: 0, radius: 34, color: "#60a5fa" });
+          bodies.push(giant);
+          for (let i = 0; i < 7; i++) {
+            const dist = 105 + i * 44;
+            const ang = i * 0.95;
+            const px = Math.cos(ang) * dist;
+            const py = Math.sin(ang) * dist;
+            const v = computeOrbitalVelocity(px, py, giant);
+            bodies.push(makeBody({
+              kind: "planet",
+              x: px,
+              y: py,
+              vx: v.vx,
+              vy: v.vy,
+              radius: 7 + (i % 4) * 2.5,
+              color: PLANET_COLORS[i % PLANET_COLORS.length],
+              ring: i === 3 || i === 5
+            }));
+          }
+          if (announce) showToast("تم تحميل عالم العملاق الأزرق");
+        } else if (presetKey === "empty") {
+          if (announce) showToast("الفضاء جاهز لإبداعاتك");
+        }
+
+        updateInspector();
+        updateDashboard();
+        saveUniverse();
+      }
+
+      function saveUniverse() {
+        try {
+          const payload = {
+            version: 1,
+            nextId,
+            isPaused,
+            timeSpeed,
+            showTrails,
+            camera: { x: camera.x, y: camera.y, zoom: camera.zoom },
+            bodies: bodies.map(b => ({
+              id: b.id,
+              name: b.name,
+              kind: b.kind,
+              x: Number(b.x.toFixed(2)),
+              y: Number(b.y.toFixed(2)),
+              vx: Number(b.vx.toFixed(3)),
+              vy: Number(b.vy.toFixed(3)),
+              radius: b.radius,
+              color: b.color,
+              ring: b.ring
+            }))
+          };
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+        } catch (err) {
+          // Ignore storage quota errors gracefully
+        }
+      }
+
+      window.__saveUniverseState = saveUniverse;
+
+      function loadUniverse() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (!raw) {
+            loadPreset("solar", false);
+            return;
+          }
+          const data = JSON.parse(raw);
+          if (!data || !Array.isArray(data.bodies)) {
+            loadPreset("solar", false);
+            return;
+          }
+          bodies = data.bodies.map(b => makeBody(b));
+          nextId = Math.max(Number(data.nextId) || 1, bodies.reduce((m, b) => Math.max(m, b.id + 1), 1));
+          isPaused = Boolean(data.isPaused);
+          timeSpeed = clamp(Number(data.timeSpeed) || 1, 0.25, 4);
+          showTrails = data.showTrails !== false;
+          if (data.camera) {
+            camera.x = Number(data.camera.x) || 0;
+            camera.y = Number(data.camera.y) || 0;
+            camera.zoom = clamp(Number(data.camera.zoom) || 0.85, 0.2, 4);
+            camera.targetZoom = camera.zoom;
+          }
+          syncTimeUI();
+          btnTrails.classList.toggle("active", showTrails);
+          updateDashboard();
+        } catch (err) {
+          loadPreset("solar", false);
+        }
+      }
+
+      /* ---------------------------------------------------------------
+         7. Simplified Simulation Step
+         --------------------------------------------------------------- */
+      const axBuf = new Float64Array(MAX_BODIES);
+      const ayBuf = new Float64Array(MAX_BODIES);
+
+      function stepPhysics(dt) {
+        if (isPaused || bodies.length === 0) return;
+
+        const effectiveDt = Math.min(dt, 0.04) * timeSpeed;
+        const subSteps = timeSpeed >= 2 ? 2 : 1;
+        const h = effectiveDt / subSteps;
+
+        for (let s = 0; s < subSteps; s++) {
+          const n = Math.min(bodies.length, MAX_BODIES);
+          axBuf.fill(0, 0, n);
+          ayBuf.fill(0, 0, n);
+
+          // Pairwise softened attraction
+          for (let i = 0; i < n; i++) {
+            const bi = bodies[i];
+            for (let j = i + 1; j < n; j++) {
+              const bj = bodies[j];
+              const dx = bj.x - bi.x;
+              const dy = bj.y - bi.y;
+              const distSq = dx * dx + dy * dy + SOFTENING;
+              const dist = Math.sqrt(distSq);
+              const forceOverDist = SIM_G / (distSq * dist);
+
+              axBuf[i] += dx * forceOverDist * bj.mass;
+              ayBuf[i] += dy * forceOverDist * bj.mass;
+              axBuf[j] -= dx * forceOverDist * bi.mass;
+              ayBuf[j] -= dy * forceOverDist * bi.mass;
+            }
+          }
+
+          for (let i = 0; i < n; i++) {
+            const b = bodies[i];
+            // Do not move a body currently being dragged by the user
+            if (interaction.type === "drag-body" && interaction.bodyId === b.id) {
+              continue;
+            }
+            b.vx += axBuf[i] * h;
+            b.vy += ayBuf[i] * h;
+
+            const speed = Math.hypot(b.vx, b.vy);
+            if (speed > MAX_SPEED) {
+              const scale = MAX_SPEED / speed;
+              b.vx *= scale;
+              b.vy *= scale;
+            }
+
+            b.x += b.vx * h;
+            b.y += b.vy * h;
+          }
+        }
+
+        // Update orbital trails once per frame
+        if (showTrails) {
+          for (let i = 0; i < bodies.length; i++) {
+            const b = bodies[i];
+            const last = b.trail[b.trail.length - 1];
+            if (!last || Math.hypot(b.x - last.x, b.y - last.y) > 4 / camera.zoom) {
+              b.trail.push({ x: b.x, y: b.y });
+              if (b.trail.length > TRAIL_MAX) {
+                b.trail.shift();
+              }
+            }
+          }
+        }
+      }
+
+      /* ---------------------------------------------------------------
+         8. Rendering
+         --------------------------------------------------------------- */
+      function render(nowMs) {
+        // Smooth camera zoom interpolation
+        camera.zoom += (camera.targetZoom - camera.zoom) * 0.18;
+
+        // Camera follow (paused while actively dragging that same body)
+        if (followId !== null && !(interaction.type === "drag-body" && interaction.bodyId === followId)) {
+          const target = bodies.find(b => b.id === followId);
+          if (target) {
+            camera.x += (target.x - camera.x) * 0.2;
+            camera.y += (target.y - camera.y) * 0.2;
+          } else {
+            followId = null;
+          }
+        }
+
+        // Deep space background
+        ctx.fillStyle = "#030610";
+        ctx.fillRect(0, 0, width, height);
+
+        // Soft Nebula Backdrop with subtle camera parallax
+        if (nebulaCanvas) {
+          ctx.save();
+          const nx = width * 0.5 - camera.x * 0.04;
+          const ny = height * 0.48 - camera.y * 0.04;
+          const nw = Math.max(width, height) * 1.15;
+          ctx.drawImage(nebulaCanvas, nx - nw * 0.5, ny - nw * 0.5, nw, nw);
+          ctx.restore();
+        }
+
+        // Animated Parallax Starfield
+        const t = nowMs * 0.001;
+        const wrapW = width + 120;
+        const wrapH = height + 120;
+        for (let i = 0; i < bgStars.length; i++) {
+          const s = bgStars[i];
+          const sx = (((s.x - camera.x * s.parallax + t * s.driftX) % wrapW) + wrapW) % wrapW - 60;
+          const sy = (((s.y - camera.y * s.parallax + t * s.driftY) % wrapH) + wrapH) % wrapH - 60;
+          const twinkle = 0.65 + 0.35 * Math.sin(t * s.speed + s.phase);
+          ctx.globalAlpha = s.alpha * twinkle;
+          ctx.fillStyle = s.tint;
+          ctx.beginPath();
+          ctx.arc(sx, sy, s.r, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.globalAlpha = 1;
+
+        // World Transform
+        ctx.save();
+        ctx.translate(width * 0.5, height * 0.5);
+        ctx.scale(camera.zoom, camera.zoom);
+        ctx.translate(-camera.x, -camera.y);
+
+        // Orbital Trails
+        if (showTrails) {
+          for (let i = 0; i < bodies.length; i++) {
+            const b = bodies[i];
+            if (b.trail.length < 2) continue;
+            ctx.beginPath();
+            ctx.moveTo(b.trail[0].x, b.trail[0].y);
+            for (let k = 1; k < b.trail.length; k++) {
+              ctx.lineTo(b.trail[k].x, b.trail[k].y);
+            }
+            ctx.lineTo(b.x, b.y);
+            ctx.strokeStyle = hexToRgba(b.color, b.kind === "star" ? 0.24 : 0.32);
+            ctx.lineWidth = Math.max(1.2 / camera.zoom, 0.9);
+            ctx.stroke();
+          }
+        }
+
+        // Render Bodies (planets first, stars on top for glow clarity)
+        for (let pass = 0; pass < 2; pass++) {
+          const drawStars = pass === 1;
+          for (let i = 0; i < bodies.length; i++) {
+            const b = bodies[i];
+            if ((b.kind === "star") !== drawStars) continue;
+
+            // Frustum culling for high performance
+            const margin = b.radius * 4 + 40;
+            const scr = worldToScreen(b.x, b.y);
+            const rPx = margin * camera.zoom;
+            if (scr.x + rPx < 0 || scr.x - rPx > width || scr.y + rPx < 0 || scr.y - rPx > height) {
+              continue;
+            }
+
+            // Cached Glow Sprite
+            const glow = getGlowSprite(b.color, b.kind === "star");
+            const glowRadius = b.kind === "star"
+              ? b.radius * (3.2 + 0.14 * Math.sin(t * 2.4 + b.id))
+              : b.radius * 2.05;
+            ctx.drawImage(glow, b.x - glowRadius, b.y - glowRadius, glowRadius * 2, glowRadius * 2);
+
+            // Back half of ring if ringed planet
+            if (b.ring) {
+              ctx.save();
+              ctx.translate(b.x, b.y);
+              ctx.rotate(-0.35);
+              ctx.beginPath();
+              ctx.ellipse(0, 0, b.radius * 2.1, b.radius * 0.62, 0, Math.PI, Math.PI * 2);
+              ctx.strokeStyle = hexToRgba(b.color, 0.65);
+              ctx.lineWidth = Math.max(2, b.radius * 0.22);
+              ctx.stroke();
+              ctx.restore();
+            }
+
+            // Body Core
+            ctx.beginPath();
+            ctx.arc(b.x, b.y, b.radius, 0, Math.PI * 2);
+            if (b.kind === "star") {
+              const starGrad = ctx.createRadialGradient(
+                b.x - b.radius * 0.2,
+                b.y - b.radius * 0.2,
+                b.radius * 0.1,
+                b.x,
+                b.y,
+                b.radius
+              );
+              starGrad.addColorStop(0, "#ffffff");
+              starGrad.addColorStop(0.55, b.color);
+              starGrad.addColorStop(1, hexToRgba(b.color, 0.85));
+              ctx.fillStyle = starGrad;
+            } else {
+              const planetGrad = ctx.createRadialGradient(
+                b.x - b.radius * 0.35,
+                b.y - b.radius * 0.35,
+                b.radius * 0.12,
+                b.x,
+                b.y,
+                b.radius
+              );
+              planetGrad.addColorStop(0, "#ffffff");
+              planetGrad.addColorStop(0.28, b.color);
+              planetGrad.addColorStop(1, "#090f24");
+              ctx.fillStyle = planetGrad;
+            }
+            ctx.fill();
+
+            // Front half of ring
+            if (b.ring) {
+              ctx.save();
+              ctx.translate(b.x, b.y);
+              ctx.rotate(-0.35);
+              ctx.beginPath();
+              ctx.ellipse(0, 0, b.radius * 2.1, b.radius * 0.62, 0, 0, Math.PI);
+              ctx.strokeStyle = hexToRgba(b.color, 0.88);
+              ctx.lineWidth = Math.max(2, b.radius * 0.22);
+              ctx.stroke();
+              ctx.restore();
+            }
+
+            // Selection Ring & Label
+            if (b.id === selectedId) {
+              ctx.beginPath();
+              ctx.arc(b.x, b.y, b.radius + 7 / camera.zoom, 0, Math.PI * 2);
+              ctx.strokeStyle = "#38bdf8";
+              ctx.lineWidth = 2 / camera.zoom;
+              ctx.setLineDash([5 / camera.zoom, 4 / camera.zoom]);
+              ctx.stroke();
+              ctx.setLineDash([]);
+            }
+          }
+        }
+
+        // Slingshot Creation Preview Vector
+        if (interaction.type === "slingshot") {
+          const sx = interaction.worldStartX;
+          const sy = interaction.worldStartY;
+          const cx = interaction.worldCurrX;
+          const cy = interaction.worldCurrY;
+          const isStarMode = mode === "add-star";
+          const previewColor = isStarMode ? "#fbbf24" : "#a78bfa";
+          const previewRadius = isStarMode ? 22 : 10;
+
+          ctx.beginPath();
+          ctx.arc(sx, sy, previewRadius, 0, Math.PI * 2);
+          ctx.fillStyle = hexToRgba(previewColor, 0.55);
+          ctx.fill();
+          ctx.strokeStyle = previewColor;
+          ctx.lineWidth = 2 / camera.zoom;
+          ctx.stroke();
+
+          if (Math.hypot(cx - sx, cy - sy) > 8 / camera.zoom) {
+            ctx.beginPath();
+            ctx.moveTo(sx, sy);
+            ctx.lineTo(sx + (sx - cx), sy + (sy - cy));
+            ctx.strokeStyle = "#38bdf8";
+            ctx.lineWidth = 2.5 / camera.zoom;
+            ctx.setLineDash([6 / camera.zoom, 4 / camera.zoom]);
+            ctx.stroke();
+            ctx.setLineDash([]);
+          }
+        }
+
+        ctx.restore();
+      }
+
+      /* ---------------------------------------------------------------
+         9. Hit Testing & Gestures (Touch + Mouse + Pinch)
+         --------------------------------------------------------------- */
+      function hitTestBody(wx, wy) {
+        const minTouchWorld = 24 / camera.zoom;
+        for (let i = bodies.length - 1; i >= 0; i--) {
+          const b = bodies[i];
+          const hitR = Math.max(b.radius + 8 / camera.zoom, minTouchWorld);
+          if (Math.hypot(wx - b.x, wy - b.y) <= hitR) {
+            return b;
+          }
+        }
+        return null;
+      }
+
+      function updateModeUI() {
+        toolMove.classList.toggle("active", mode === "move");
+        toolStar.classList.toggle("active", mode === "add-star");
+        toolPlanet.classList.toggle("active", mode === "add-planet");
+        canvas.classList.toggle("mode-create", mode !== "move");
+
+        if (mode === "move") {
+          modeHint.textContent = "اسحب أي جرم لتحريكه • اسحب الفضاء للتنقل • قرّص للتكبير";
+        } else if (mode === "add-star") {
+          modeHint.textContent = "المس الفضاء لإنشاء نجم، أو اسحب لإطلاقه بسرعة";
+        } else {
+          modeHint.textContent = "المس لإنشاء كوكب بمدار تلقائي، أو اسحب للإطلاق اليدوي";
+        }
+      }
+
+      function setMode(nextMode) {
+        mode = nextMode;
+        updateModeUI();
+      }
+
+      canvas.addEventListener("pointerdown", (e) => {
+        if (e.button !== undefined && e.button !== 0 && e.pointerType === "mouse") return;
+        canvas.setPointerCapture(e.pointerId);
+        activePointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+
+        if (activePointers.size === 2) {
+          const pts = Array.from(activePointers.values());
+          interaction.type = "pinch";
+          interaction.bodyId = null;
+          interaction.pinchDist = Math.hypot(pts[1].x - pts[0].x, pts[1].y - pts[0].y) || 1;
+          interaction.pinchMidX = (pts[0].x + pts[1].x) * 0.5;
+          interaction.pinchMidY = (pts[0].y + pts[1].y) * 0.5;
+          followId = null;
+          return;
+        }
+
+        if (activePointers.size === 1) {
+          const rect = canvas.getBoundingClientRect();
+          const sx = e.clientX - rect.left;
+          const sy = e.clientY - rect.top;
+          const world = screenToWorld(sx, sy);
+
+          interaction.startScreenX = sx;
+          interaction.startScreenY = sy;
+          interaction.lastScreenX = sx;
+          interaction.lastScreenY = sy;
+          interaction.worldStartX = world.x;
+          interaction.worldStartY = world.y;
+          interaction.worldCurrX = world.x;
+          interaction.worldCurrY = world.y;
+          interaction.moved = false;
+
+          if (mode === "move") {
+            const hit = hitTestBody(world.x, world.y);
+            if (hit) {
+              interaction.type = "drag-body";
+              interaction.bodyId = hit.id;
+              selectedId = hit.id;
+              updateInspector();
+              canvas.classList.add("dragging");
+            } else {
+              interaction.type = "pan";
+              interaction.bodyId = null;
+              canvas.classList.add("dragging");
+            }
+          } else {
+            interaction.type = "slingshot";
+            interaction.bodyId = null;
+          }
+        }
+      });
+
+      canvas.addEventListener("pointermove", (e) => {
+        if (!activePointers.has(e.pointerId)) return;
+        activePointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+
+        if (activePointers.size === 2 && interaction.type === "pinch") {
+          const pts = Array.from(activePointers.values());
+          const newDist = Math.hypot(pts[1].x - pts[0].x, pts[1].y - pts[0].y) || 1;
+          const midX = (pts[0].x + pts[1].x) * 0.5;
+          const midY = (pts[0].y + pts[1].y) * 0.5;
+
+          const scaleFactor = newDist / interaction.pinchDist;
+          const nextZoom = clamp(camera.zoom * scaleFactor, 0.2, 4.0);
+
+          const rect = canvas.getBoundingClientRect();
+          const relMidX = midX - rect.left;
+          const relMidY = midY - rect.top;
+          const worldBefore = screenToWorld(relMidX, relMidY);
+
+          camera.zoom = nextZoom;
+          camera.targetZoom = nextZoom;
+
+          // Pan delta + keep pinch midpoint anchored
+          const dxPan = (midX - interaction.pinchMidX) / camera.zoom;
+          const dyPan = (midY - interaction.pinchMidY) / camera.zoom;
+          camera.x = worldBefore.x - (relMidX - width * 0.5) / camera.zoom - dxPan;
+          camera.y = worldBefore.y - (relMidY - height * 0.5) / camera.zoom - dyPan;
+
+          interaction.pinchDist = newDist;
+          interaction.pinchMidX = midX;
+          interaction.pinchMidY = midY;
+          updateZoomUI();
+          return;
+        }
+
+        if (activePointers.size === 1) {
+          const rect = canvas.getBoundingClientRect();
+          const sx = e.clientX - rect.left;
+          const sy = e.clientY - rect.top;
+          const dxScreen = sx - interaction.lastScreenX;
+          const dyScreen = sy - interaction.lastScreenY;
+
+          if (Math.hypot(sx - interaction.startScreenX, sy - interaction.startScreenY) > 6) {
+            interaction.moved = true;
+          }
+
+          if (interaction.type === "pan") {
+            if (interaction.moved) followId = null;
+            camera.x -= dxScreen / camera.zoom;
+            camera.y -= dyScreen / camera.zoom;
+          } else if (interaction.type === "drag-body") {
+            const b = bodies.find(item => item.id === interaction.bodyId);
+            if (b) {
+              b.x += dxScreen / camera.zoom;
+              b.y += dyScreen / camera.zoom;
+              b.trail = [];
+            }
+          } else if (interaction.type === "slingshot") {
+            const world = screenToWorld(sx, sy);
+            interaction.worldCurrX = world.x;
+            interaction.worldCurrY = world.y;
+          }
+
+          interaction.lastScreenX = sx;
+          interaction.lastScreenY = sy;
+        }
+      });
+
+      function endPointer(e) {
+        if (!activePointers.has(e.pointerId)) return;
+        activePointers.delete(e.pointerId);
+
+        if (interaction.type === "slingshot" && activePointers.size === 0) {
+          if (bodies.length >= MAX_BODIES) {
+            showToast(`تم بلوغ الحد الأقصى للأداء (${MAX_BODIES} جرماً)`);
+          } else {
+            const sx = interaction.worldStartX;
+            const sy = interaction.worldStartY;
+            const dx = sx - interaction.worldCurrX;
+            const dy = sy - interaction.worldCurrY;
+            const dragDist = Math.hypot(dx, dy);
+
+            let vx = 0;
+            let vy = 0;
+            const isStar = mode === "add-star";
+
+            if (dragDist > 12 / camera.zoom) {
+              vx = clamp(dx * 1.45, -MAX_SPEED * 0.85, MAX_SPEED * 0.85);
+              vy = clamp(dy * 1.45, -MAX_SPEED * 0.85, MAX_SPEED * 0.85);
+            } else if (!isStar) {
+              const star = findNearestStar(sx, sy);
+              if (star) {
+                const orb = computeOrbitalVelocity(sx, sy, star);
+                vx = orb.vx;
+                vy = orb.vy;
+              }
+            }
+
+            const newBody = makeBody({
+              kind: isStar ? "star" : "planet",
+              x: sx,
+              y: sy,
+              vx,
+              vy,
+              radius: isStar ? 23 : 10 + Math.round(Math.random() * 4),
+              color: isStar
+                ? STAR_COLORS[nextId % STAR_COLORS.length]
+                : PLANET_COLORS[nextId % PLANET_COLORS.length],
+              ring: !isStar && nextId % 4 === 0
+            });
+            bodies.push(newBody);
+            selectedId = newBody.id;
+            updateDashboard();
+            updateInspector();
+            saveUniverse();
+            showToast(isStar ? "تم إنشاء نجم جديد ⭐" : "تم إنشاء كوكب جديد 🪐");
+          }
+        } else if (interaction.type === "pan" && !interaction.moved) {
+          // Tapped empty space -> deselect
+          if (selectedId !== null) {
+            selectedId = null;
+            updateInspector();
+          }
+        } else if (interaction.type === "drag-body" && interaction.moved) {
+          saveUniverse();
+          updateInspector();
+        }
+
+        if (activePointers.size === 0) {
+          interaction.type = null;
+          interaction.bodyId = null;
+          canvas.classList.remove("dragging");
+        }
+      }
+
+      canvas.addEventListener("pointerup", endPointer);
+      canvas.addEventListener("pointercancel", endPointer);
+
+      // Mouse wheel zoom support
+      canvas.addEventListener("wheel", (e) => {
+        e.preventDefault();
+        const factor = e.deltaY < 0 ? 1.12 : 0.89;
+        zoomAtScreenPoint(camera.targetZoom * factor, e.clientX, e.clientY);
+      }, { passive: false });
+
+      function zoomAtScreenPoint(nextZoom, clientX, clientY) {
+        const clamped = clamp(nextZoom, 0.2, 4.0);
+        const rect = canvas.getBoundingClientRect();
+        const sx = clientX - rect.left;
+        const sy = clientY - rect.top;
+        const worldBefore = screenToWorld(sx, sy);
+
+        camera.zoom = clamped;
+        camera.targetZoom = clamped;
+        camera.x = worldBefore.x - (sx - width * 0.5) / clamped;
+        camera.y = worldBefore.y - (sy - height * 0.5) / clamped;
+        updateZoomUI();
+      }
+
+      /* ---------------------------------------------------------------
+         10. UI Bindings (Time, Zoom, Inspector, Modals)
+         --------------------------------------------------------------- */
+      function syncTimeUI() {
+        btnPlayPause.classList.toggle("paused", isPaused);
+        playIcon.textContent = isPaused ? "▶" : "⏸";
+        playLabel.textContent = isPaused ? "تشغيل" : "إيقاف";
+
+        speedChips.forEach(chip => {
+          chip.classList.toggle("active", Number(chip.dataset.speed) === timeSpeed);
+        });
+
+        statTime.textContent = isPaused ? "متوقف" : `${timeSpeed}×`;
+        statTime.classList.toggle("paused", isPaused);
+        statTime.classList.toggle("cyan", !isPaused);
+      }
+
+      function updateZoomUI() {
+        statZoom.textContent = `${Math.round(camera.zoom * 100)}%`;
+      }
+
+      function updateDashboard() {
+        let stars = 0;
+        let planets = 0;
+        for (let i = 0; i < bodies.length; i++) {
+          if (bodies[i].kind === "star") stars++;
+          else planets++;
+        }
+        statStars.textContent = stars;
+        statPlanets.textContent = planets;
+        statTotal.textContent = bodies.length;
+        syncTimeUI();
+        updateZoomUI();
+      }
+
+      function updateInspector() {
+        const b = bodies.find(item => item.id === selectedId);
+        if (!b) {
+          inspectorCard.classList.remove("visible");
+          return;
+        }
+
+        inspectorCard.classList.add("visible");
+        inspSwatch.style.background = b.color;
+        inspName.textContent = b.name;
+        const spd = Math.round(Math.hypot(b.vx, b.vy));
+        inspMeta.textContent = `${b.kind === "star" ? "نجم مضيء" : "كوكب"} • حجم ${Math.round(b.radius)} • سرعة ${spd}`;
+
+        btnFollowBody.classList.toggle("active", followId === b.id);
+        btnAutoOrbit.style.display = b.kind === "planet" ? "inline-flex" : "none";
+
+        const palette = b.kind === "star" ? STAR_COLORS : PLANET_COLORS;
+        inspSwatches.innerHTML = palette.map(c =>
+          `<button class="swatch-dot ${b.color === c ? "selected" : ""}" style="background:${c};" data-color="${c}" aria-label="اختيار لون"></button>`
+        ).join("");
+
+        inspSwatches.querySelectorAll(".swatch-dot").forEach(dot => {
+          dot.addEventListener("click", () => {
+            b.color = dot.dataset.color;
+            updateInspector();
+            saveUniverse();
+          });
+        });
+      }
+
+      btnPlayPause.addEventListener("click", () => {
+        isPaused = !isPaused;
+        syncTimeUI();
+        saveUniverse();
+      });
+
+      speedChips.forEach(chip => {
+        chip.addEventListener("click", () => {
+          timeSpeed = Number(chip.dataset.speed);
+          if (isPaused) isPaused = false;
+          syncTimeUI();
+          saveUniverse();
+        });
+      });
+
+      toolMove.addEventListener("click", () => setMode("move"));
+      toolStar.addEventListener("click", () => setMode("add-star"));
+      toolPlanet.addEventListener("click", () => setMode("add-planet"));
+
+      btnTrails.addEventListener("click", () => {
+        showTrails = !showTrails;
+        if (!showTrails) {
+          bodies.forEach(b => { b.trail = []; });
+        }
+        btnTrails.classList.toggle("active", showTrails);
+        saveUniverse();
+        showToast(showTrails ? "تم إظهار المدارات" : "تم إخفاء المدارات");
+      });
+
+      btnSave.addEventListener("click", () => {
+        saveUniverse();
+        showToast("✓ تم حفظ حالة الكون محلياً");
+      });
+
+      btnZoomIn.addEventListener("click", () => {
+        camera.targetZoom = clamp(camera.targetZoom * 1.28, 0.2, 4.0);
+        updateZoomUI();
+      });
+
+      btnZoomOut.addEventListener("click", () => {
+        camera.targetZoom = clamp(camera.targetZoom / 1.28, 0.2, 4.0);
+        updateZoomUI();
+      });
+
+      btnResetView.addEventListener("click", () => {
+        followId = null;
+        if (bodies.length > 0) {
+          let sx = 0, sy = 0;
+          for (const b of bodies) { sx += b.x; sy += b.y; }
+          camera.x = sx / bodies.length;
+          camera.y = sy / bodies.length;
+        } else {
+          camera.x = 0;
+          camera.y = 0;
+        }
+        camera.targetZoom = width < 480 ? 0.72 : 0.92;
+        updateInspector();
+        updateZoomUI();
+        showToast("تم توسيط الرؤية");
+      });
+
+      // Inspector actions
+      btnCloseInspector.addEventListener("click", () => {
+        selectedId = null;
+        updateInspector();
+      });
+
+      btnFollowBody.addEventListener("click", () => {
+        if (selectedId === null) return;
+        followId = followId === selectedId ? null : selectedId;
+        updateInspector();
+      });
+
+      btnAutoOrbit.addEventListener("click", () => {
+        const b = bodies.find(item => item.id === selectedId);
+        if (!b) return;
+        const star = findNearestStar(b.x, b.y, b.id);
+        if (!star) {
+          showToast("أنشئ نجماً أولاً لتكوين مدار حوله");
+          return;
+        }
+        const orb = computeOrbitalVelocity(b.x, b.y, star);
+        b.vx = orb.vx;
+        b.vy = orb.vy;
+        b.trail = [];
+        updateInspector();
+        saveUniverse();
+        showToast(`تم ضبط المدار حول ${star.name}`);
+      });
+
+      btnFreezeBody.addEventListener("click", () => {
+        const b = bodies.find(item => item.id === selectedId);
+        if (!b) return;
+        b.vx = 0;
+        b.vy = 0;
+        updateInspector();
+        saveUniverse();
+        showToast("تم تصفير سرعة الجرم");
+      });
+
+      btnDeleteBody.addEventListener("click", () => {
+        if (selectedId === null) return;
+        bodies = bodies.filter(b => b.id !== selectedId);
+        if (followId === selectedId) followId = null;
+        selectedId = null;
+        updateInspector();
+        updateDashboard();
+        saveUniverse();
+        showToast("تم حذف الجرم");
+      });
+
+      btnSizeDown.addEventListener("click", () => {
+        const b = bodies.find(item => item.id === selectedId);
+        if (!b) return;
+        b.radius = clamp(b.radius - 2, 5, 50);
+        b.mass = calcMass(b.kind, b.radius);
+        updateInspector();
+        saveUniverse();
+      });
+
+      btnSizeUp.addEventListener("click", () => {
+        const b = bodies.find(item => item.id === selectedId);
+        if (!b) return;
+        b.radius = clamp(b.radius + 2, 5, 50);
+        b.mass = calcMass(b.kind, b.radius);
+        updateInspector();
+        saveUniverse();
+      });
+
+      // Modals
+      function openModal(id) {
+        document.getElementById(id).classList.add("open");
+      }
+      function closeModal(id) {
+        document.getElementById(id).classList.remove("open");
+      }
+
+      document.querySelectorAll("[data-close]").forEach(btn => {
+        btn.addEventListener("click", () => closeModal(btn.dataset.close));
+      });
+      document.querySelectorAll(".modal-backdrop").forEach(backdrop => {
+        backdrop.addEventListener("click", (e) => {
+          if (e.target === backdrop) backdrop.classList.remove("open");
+        });
+      });
+
+      toolCustom.addEventListener("click", () => {
+        renderCustomSwatches();
+        openModal("customModal");
+      });
+      btnWorldMenu.addEventListener("click", () => openModal("worldModal"));
+      btnInfo.addEventListener("click", () => openModal("infoModal"));
+
+      document.querySelectorAll("[data-preset]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          loadPreset(btn.dataset.preset, true);
+          closeModal("worldModal");
+        });
+      });
+
+      // Custom Modal Form Logic
+      function renderCustomSwatches() {
+        const palette = customForm.kind === "star" ? STAR_COLORS : PLANET_COLORS;
+        if (!palette.includes(customForm.color)) customForm.color = palette[0];
+        customSwatches.innerHTML = palette.map(c =>
+          `<button type="button" class="swatch-dot ${customForm.color === c ? "selected" : ""}" style="background:${c};" data-color="${c}" aria-label="لون"></button>`
+        ).join("");
+        customSwatches.querySelectorAll(".swatch-dot").forEach(dot => {
+          dot.addEventListener("click", () => {
+            customForm.color = dot.dataset.color;
+            renderCustomSwatches();
+          });
+        });
+      }
+
+      typeStarBtn.addEventListener("click", () => {
+        customForm.kind = "star";
+        customForm.size = 24;
+        customSizeRange.value = 24;
+        customSizeLabel.textContent = "24";
+        typeStarBtn.classList.add("active");
+        typePlanetBtn.classList.remove("active");
+        customRingGroup.style.display = "none";
+        renderCustomSwatches();
+      });
+
+      typePlanetBtn.addEventListener("click", () => {
+        customForm.kind = "planet";
+        customForm.size = 11;
+        customSizeRange.value = 11;
+        customSizeLabel.textContent = "11";
+        typePlanetBtn.classList.add("active");
+        typeStarBtn.classList.remove("active");
+        customRingGroup.style.display = "block";
+        renderCustomSwatches();
+      });
+
+      customSizeRange.addEventListener("input", () => {
+        customForm.size = Number(customSizeRange.value);
+        customSizeLabel.textContent = customForm.size;
+      });
+
+      ringNoBtn.addEventListener("click", () => {
+        customForm.ring = false;
+        ringNoBtn.classList.add("active");
+        ringYesBtn.classList.remove("active");
+      });
+
+      ringYesBtn.addEventListener("click", () => {
+        customForm.ring = true;
+        ringYesBtn.classList.add("active");
+        ringNoBtn.classList.remove("active");
+      });
+
+      orbitAutoBtn.addEventListener("click", () => {
+        customForm.autoOrbit = true;
+        orbitAutoBtn.classList.add("active");
+        orbitStaticBtn.classList.remove("active");
+      });
+
+      orbitStaticBtn.addEventListener("click", () => {
+        customForm.autoOrbit = false;
+        orbitStaticBtn.classList.add("active");
+        orbitAutoBtn.classList.remove("active");
+      });
+
+      btnSpawnCustom.addEventListener("click", () => {
+        if (bodies.length >= MAX_BODIES) {
+          showToast(`تم بلوغ الحد الأقصى للأداء (${MAX_BODIES} جرماً)`);
+          return;
+        }
+        // Slight offset from camera center so it doesn't land directly on top of a central star
+        const angle = Math.random() * Math.PI * 2;
+        const offset = customForm.kind === "planet" ? 135 / camera.zoom : 0;
+        const sx = camera.x + Math.cos(angle) * offset;
+        const sy = camera.y + Math.sin(angle) * offset;
+
+        let vx = 0, vy = 0;
+        if (customForm.autoOrbit) {
+          const star = findNearestStar(sx, sy);
+          if (star) {
+            const orb = computeOrbitalVelocity(sx, sy, star);
+            vx = orb.vx;
+            vy = orb.vy;
+          }
+        }
+
+        const created = makeBody({
+          name: customName.value,
+          kind: customForm.kind,
+          x: sx,
+          y: sy,
+          vx,
+          vy,
+          radius: customForm.size,
+          color: customForm.color,
+          ring: customForm.kind === "planet" && customForm.ring
+        });
+        bodies.push(created);
+        selectedId = created.id;
+        customName.value = "";
+        closeModal("customModal");
+        setMode("move");
+        updateDashboard();
+        updateInspector();
+        saveUniverse();
+        showToast(`تمت إضافة ${created.name}`);
+      });
+
+      /* ---------------------------------------------------------------
+         11. Resize & Animation Loop
+         --------------------------------------------------------------- */
+      function resizeCanvas() {
+        const rect = canvas.getBoundingClientRect();
+        width = Math.max(rect.width, 1);
+        height = Math.max(rect.height, 1);
+        dpr = Math.min(window.devicePixelRatio || 1, 2);
+        canvas.width = Math.floor(width * dpr);
+        canvas.height = Math.floor(height * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      }
+
+      window.addEventListener("resize", resizeCanvas);
+      window.addEventListener("visibilitychange", () => {
+        if (document.visibilityState === "hidden") saveUniverse();
+      });
+      window.addEventListener("pagehide", saveUniverse);
+
+      let prevTime = performance.now();
+      let lastInspectorRefresh = 0;
+
+      function frame(now) {
+        const dt = Math.min((now - prevTime) / 1000, 0.05);
+        prevTime = now;
+        simTime += dt;
+
+        stepPhysics(dt);
+        render(now);
+
+        if (Math.abs(camera.targetZoom - camera.zoom) > 0.002) {
+          updateZoomUI();
+        }
+
+        if (selectedId !== null && now - lastInspectorRefresh > 250) {
+          lastInspectorRefresh = now;
+          const b = bodies.find(item => item.id === selectedId);
+          if (b) {
+            const spd = Math.round(Math.hypot(b.vx, b.vy));
+            inspMeta.textContent = `${b.kind === "star" ? "نجم مضيء" : "كوكب"} • حجم ${Math.round(b.radius)} • سرعة ${spd}`;
+          }
+        }
+
+        if (now - lastSaveTime > 3000) {
+          lastSaveTime = now;
+          saveUniverse();
+        }
+
+        requestAnimationFrame(frame);
+      }
+
+      /* ---------------------------------------------------------------
+         12. Bootstrap
+         --------------------------------------------------------------- */
+      resizeCanvas();
+      buildNebulaBackdrop();
+      initStarfield();
+      loadUniverse();
+      updateModeUI();
+      requestAnimationFrame(frame);
+    })();
   </script>
 </body>
 </html>
